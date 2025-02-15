@@ -18,19 +18,24 @@
       href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
     />
   </head>
+
   <body>
     <ion-app>
       <!--Componente de Ruteo-->
       <ion-router id="ruteo" root="/">
         <ion-route url="/" component="page-home"></ion-route>
         <ion-route url="/login" component="page-login"></ion-route>
-        <ion-route url="/actividades" component="page-actividades"></ion-route>
         <ion-route
-          url="/registro-actividades"
-          component="page-registro-actividades"
+          url="/regUsuario"
+          component="page-registroUsuario"
+        ></ion-route>
+        <ion-route
+          url="/regActividades"
+          component="page-actividades"
         ></ion-route>
       </ion-router>
       <ion-nav id="nav"> </ion-nav>
+      <!--Stack de navegación-->
 
       <!--Menu-->
       <ion-menu content-id="main" id="menu">
@@ -41,26 +46,23 @@
         </ion-header>
         <ion-content class="ion-padding">
           <ion-list>
-            <ion-item
-              id="btnRegistroActividad"
-              href="/registro-actividades"
-              onclick="cerrarMenu()"
-              >Registro de actividades</ion-item
+            <ion-item href="/login" onclick="cerrarMenu()" id="btnMenuLogin"
+              >Login</ion-item
             >
             <ion-item
-              id="btnMapaUsuarios"
-              href="/usuarios"
+              href="/regUsuario"
               onclick="cerrarMenu()"
-              >Mapa de usuarios</ion-item
+              id="btnMenuRegistro"
+              >Registro de usuario</ion-item
             >
             <ion-item
-              id="btnMisRegistros"
-              href="/mis-registros"
+              href="/regActividades"
               onclick="cerrarMenu()"
-              >Mis registros</ion-item
+              id="btnMenuRegActividades"
+              >Registro de Actividades</ion-item
             >
-            <ion-item id="btnLogout" href="/login" onclick="cerrarMenu()"
-              >Log out</ion-item
+            <ion-item onclick="cerrarSesion()" id="btnMenuCerrarSesion"
+              >Cerrar Sesion</ion-item
             >
           </ion-list>
         </ion-content>
@@ -68,27 +70,11 @@
       <div id="main"></div>
       <!--div necesario para superponerse a la pantalla-->
 
-      <!--Pantalla Home-->
-      <page-home class="ion-page" id="home">
-        <ion-header>
-          <ion-toolbar color="primary">
-            <ion-buttons>
-              <ion-menu-button></ion-menu-button>
-            </ion-buttons>
-            <ion-title>Home</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content
-          ><!--Me tranforma esta pantalla en algo scrolleable-->
-          Pantalla Home
-        </ion-content>
-      </page-home>
-
-      <!--Pantalla Login-->
+      <!--Login-->
       <page-login class="ion-page" id="login">
         <ion-header>
           <ion-toolbar color="success">
-            <ion-buttons>
+            <ion-buttons slot="start">
               <ion-menu-button></ion-menu-button>
             </ion-buttons>
             <ion-title>Login</ion-title>
@@ -101,24 +87,85 @@
             <!--Usuario-->
             <ion-item>
               <ion-input
-                label="Ingrese con mail de usuario"
+                label="Ingrese mail de usuario"
                 label-placement="floating"
                 clear-input="true"
+                id="txtLoginMail"
                 placeholder="Ingrese su mail"
-                value="Mail"
+              >
+              </ion-input>
+              <ion-icon name="mail-outline" color="success"></ion-icon>
+            </ion-item>
+
+            <!--pass-->
+            <ion-item>
+              <ion-input
+                type="password"
+                label="Contraseña"
+                label-placement="floating"
+                clear-input="true"
+                id="txtLoginPassword"
+                placeholder="Contraseña"
+              >
+                <ion-input-password-toggle
+                  slot="end"
+                  color="success"
+                ></ion-input-password-toggle>
+              </ion-input>
+            </ion-item>
+          </ion-list>
+          <!--boton-->
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <ion-button fill="solid" color="success" id="btnLoginUsuario"
+                  >Ingresar</ion-button
+                >
+                <p id="pLogin"></p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-content>
+      </page-login>
+
+      <!--Registro de Usuarios-->
+      <page-registroUsuario class="ion-page" id="regUsuario">
+        <ion-header>
+          <ion-toolbar color="medium">
+            <ion-buttons slot="start">
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Registro de Usuarios</ion-title>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+          <!--Usuario-->
+          <ion-list>
+            <ion-item>
+              <ion-input
+                label="Ingrese mail de usuario"
+                label-placement="floating"
+                clear-input="true"
+                id="txtNombreRegistro"
+                placeholder="Ingrese su mail"
               ></ion-input>
               <ion-icon name="mail-outline"></ion-icon>
             </ion-item>
             <!--pass-->
             <ion-item>
               <ion-input
-                label="Ingrese Contraseña"
+                type="password"
+                label="Contraseña"
                 label-placement="floating"
                 clear-input="true"
+                id="txtPasswoedIngresado"
                 placeholder="Contraseña"
-                type="password"
               ></ion-input>
-              <ion-icon name="eye-off-outline"></ion-icon>
+              <ion-input-password-toggle
+                slot="end"
+                color="medium"
+              ></ion-input-password-toggle>
             </ion-item>
             <!--país-->
             <ion-item>
@@ -126,39 +173,51 @@
                 label="Ingrese país de residencia"
                 label-placement="floating"
                 clear-input="true"
-                placeholder="Ingrese su mail"
-                value="País"
+                id="txtPaisIngresado"
+                placeholder="Pais"
               ></ion-input>
-              <ion-icon name="mail-outline"></ion-icon>
+              <ion-icon name="earth-outline"></ion-icon>
             </ion-item>
           </ion-list>
+
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <p id="pRegistro"></p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <ion-button fill="solid" color="medium" id="btnRegistroUsuario"
+                  >Registrarse</ion-button
+                >
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </ion-content>
-      </page-login>
-      <!--Ver mis actividades-->
-      <page-actividades class="ion-page" id="misRegistros">
+      </page-registroUsuario>
+
+      <!--Pantalla Registro Actividades-->
+      <page-actividades class="ion-page" id="regActividades">
         <ion-header>
-          <ion-toolbar color="success">
-            <ion-buttons>
+          <ion-toolbar color="primary">
+            <ion-buttons slot="start">
               <ion-menu-button></ion-menu-button>
             </ion-buttons>
-            <ion-title>Mis registros</ion-title>
+            <ion-title>Registro de Actividades</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content> </ion-content>
+        <ion-content
+          ><!--Me tranforma esta pantalla en algo scrolleable-->
+          Pantalla Actividades
+        </ion-content>
       </page-actividades>
 
-      <!--registrar actividad-->
-      <page-registro-actividades class="ion-page" id="registroNuevo">
-        <ion-header>
-          <ion-toolbar color="success">
-            <ion-buttons>
-              <ion-menu-button></ion-menu-button>
-            </ion-buttons>
-            <ion-title>Crear nuevo</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content> </ion-content>
-      </page-registro-actividades>
+      <!--Home-->
+      <page-home class="ion-page" id="home"> </page-home>
     </ion-app>
 
     <script type="text/javascript" src="js/clases.js"></script>
