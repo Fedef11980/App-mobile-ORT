@@ -1,102 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-		<link rel="icon" href="data:,">
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Título</title>
-        <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-        <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
-        
-    </head>
-    <body>
-        <ion-app>       
-        
-          <!--Componente de Ruteo-->
-          <ion-router id="ruteo" root="/">
-            <ion-route url="/" component="page-home"></ion-route>
-            <ion-route url="/login" component="page-login"></ion-route>
-          </ion-router>
-          <ion-nav id="nav"> </ion-nav>
-        
-          <!--Menu-->
-          <ion-menu content-id="main" id="menu">
-            <ion-header>
-              <ion-toolbar color="warning">
-                <ion-title>Menu</ion-title>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content class="ion-padding">
-              <ion-list>
-                <ion-item href="/" onclick="cerrarMenu()">Registro de actividades</ion-item>
-                <ion-item href="/usuarios" onclick="cerrarMenu()">Mapa de usuarios</ion-item>
-                <ion-item href="/registro" onclick="cerrarMenu()">Mis Registros</ion-item>
-                <ion-item href="/login" onclick="cerrarMenu()">Log out</ion-item>
-              </ion-list>
-            </ion-content>
-          </ion-menu>
-          <div id="main"></div> <!--div necesario para superponerse a la pantalla-->
-        
-          <!--Pantalla Home-->
-          <page-home class="ion-page" id="home">
-            <ion-header>
-              <ion-toolbar color="primary">
-                <ion-buttons>
-                  <ion-menu-button></ion-menu-button>
-                </ion-buttons>
-                <ion-title>Home</ion-title>
-              </ion-toolbar>
-            </ion-header>
-            <ion-content><!--Me tranforma esta pantalla en algo scrolleable-->
-              Pantalla Home
-            </ion-content>
-          </page-home>
-        
-          <!--Pantalla Login-->
-          <page-login class="ion-page" id="login">
-            <ion-header>
-              <ion-toolbar color="success">
-                <ion-buttons>
-                  <ion-menu-button></ion-menu-button>
-                </ion-buttons>
-                <ion-title>Login</ion-title>
-              </ion-toolbar>
-            </ion-header>
-            
-            <ion-content><!--Me tranforma esta pantalla en algo scrolleable-->
-              <ion-list>
-                <!--Usuario-->
-                <ion-item> 
-                  <ion-input label="Ingrese con mail de usuario" label-placement="floating" clear-input="true"
-                    placeholder="Ingrese su mail" value="Mail"></ion-input>
-                    <ion-icon name="mail-outline"></ion-icon>
-                </ion-item>          
-                <!--pass-->             
-                <ion-item>
-                  <ion-input label="Ingrese Contraseña" label-placement="floating" clear-input="true" placeholder="Contraseña" type="password"></ion-input>
-                  <ion-icon name="eye-off-outline"></ion-icon>
-                </ion-item>
-                <!--país-->   
-                <ion-item> 
-                  <ion-input label="Ingrese país de residencia" label-placement="floating" clear-input="true"
-                    placeholder="Ingrese su mail" value="País"></ion-input>
-                    <ion-icon name="mail-outline"></ion-icon>
-                </ion-item>  
+  <head>
+    <link rel="icon" href="data:," />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Título</title>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
+    />
+  </head>
+  <body>
+    <ion-app>
+      <!--Componente de Ruteo-->
+      <ion-router id="ruteo" root="/">
+        <ion-route url="/" component="page-home"></ion-route>
+        <ion-route url="/login" component="page-login"></ion-route>
+        <ion-route url="/actividades" component="page-actividades"></ion-route>
+        <ion-route
+          url="/registro-actividades"
+          component="page-registro-actividades"
+        ></ion-route>
+      </ion-router>
+      <ion-nav id="nav"> </ion-nav>
 
-               
-              </ion-list>
-              
-          
-                       
-                              
-            </ion-content>
-          
-          </page-login>      
-        
-        </ion-app>
-        
-        <script type="text/javascript" src="js/miCodigo.js"></script>
-        </body>
+      <!--Menu-->
+      <ion-menu content-id="main" id="menu">
+        <ion-header>
+          <ion-toolbar color="warning">
+            <ion-title>Menu</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <ion-list>
+            <ion-item
+              id="btnRegistroActividad"
+              href="/registro-actividades"
+              onclick="cerrarMenu()"
+              >Registro de actividades</ion-item
+            >
+            <ion-item
+              id="btnMapaUsuarios"
+              href="/usuarios"
+              onclick="cerrarMenu()"
+              >Mapa de usuarios</ion-item
+            >
+            <ion-item
+              id="btnMisRegistros"
+              href="/mis-registros"
+              onclick="cerrarMenu()"
+              >Mis registros</ion-item
+            >
+            <ion-item id="btnLogout" href="/login" onclick="cerrarMenu()"
+              >Log out</ion-item
+            >
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+      <div id="main"></div>
+      <!--div necesario para superponerse a la pantalla-->
+
+      <!--Pantalla Home-->
+      <page-home class="ion-page" id="home">
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-buttons>
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Home</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content
+          ><!--Me tranforma esta pantalla en algo scrolleable-->
+          Pantalla Home
+        </ion-content>
+      </page-home>
+
+      <!--Pantalla Login-->
+      <page-login class="ion-page" id="login">
+        <ion-header>
+          <ion-toolbar color="success">
+            <ion-buttons>
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Login</ion-title>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content
+          ><!--Me tranforma esta pantalla en algo scrolleable-->
+          <ion-list>
+            <!--Usuario-->
+            <ion-item>
+              <ion-input
+                label="Ingrese con mail de usuario"
+                label-placement="floating"
+                clear-input="true"
+                placeholder="Ingrese su mail"
+                value="Mail"
+              ></ion-input>
+              <ion-icon name="mail-outline"></ion-icon>
+            </ion-item>
+            <!--pass-->
+            <ion-item>
+              <ion-input
+                label="Ingrese Contraseña"
+                label-placement="floating"
+                clear-input="true"
+                placeholder="Contraseña"
+                type="password"
+              ></ion-input>
+              <ion-icon name="eye-off-outline"></ion-icon>
+            </ion-item>
+            <!--país-->
+            <ion-item>
+              <ion-input
+                label="Ingrese país de residencia"
+                label-placement="floating"
+                clear-input="true"
+                placeholder="Ingrese su mail"
+                value="País"
+              ></ion-input>
+              <ion-icon name="mail-outline"></ion-icon>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </page-login>
+      <!--Ver mis actividades-->
+      <page-actividades class="ion-page" id="misRegistros">
+        <ion-header>
+          <ion-toolbar color="success">
+            <ion-buttons>
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Mis registros</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content> </ion-content>
+      </page-actividades>
+
+      <!--registrar actividad-->
+      <page-registro-actividades class="ion-page" id="registroNuevo">
+        <ion-header>
+          <ion-toolbar color="success">
+            <ion-buttons>
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Crear nuevo</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content> </ion-content>
+      </page-registro-actividades>
+    </ion-app>
+
+    <script type="text/javascript" src="js/clases.js"></script>
+    <script type="text/javascript" src="js/miCodigo.js"></script>
+  </body>
 </html>
-
