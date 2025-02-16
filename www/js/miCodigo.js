@@ -31,17 +31,11 @@ function subscripcionEventos() {
   //Routeo
   ROUTER.addEventListener("ionRouteDidChange", navegar);
   //Login
-  document
-    .querySelector("#btnLoginUsuario")
-    .addEventListener("click", btnLoginSesionHandler);
+  document.querySelector("#btnLoginUsuario").addEventListener("click", btnLoginSesionHandler);
   //RegistroUsuario
-  document
-    .querySelector("#btnRegistroUsuario")
-    .addEventListener("click", btnRegistroUsuarioHandler);
-
-  document
-    .querySelector("#btnVerActividades")
-    .addEventListener("click", btnMostrarActividades);
+  document.querySelector("#btnRegistroUsuario").addEventListener("click", btnRegistroUsuarioHandler);
+  //Mostrar Actividades
+  document.querySelector("#btnVerActividades").addEventListener("click", btnMostrarActividades);
 }
 
 function cerrarMenu() {
@@ -151,31 +145,25 @@ function btnRegistroUsuarioHandler() {
   let usuarioIngresado = document.querySelector("#txtNombreRegistro").value;
   let passwordIngresado = document.querySelector("#txtPasswoedIngresado").value;
   let paisIngresado = document.querySelector("#txtPaisIngresado").value;
-
-  let verificacionPasswordIngresado = document.querySelector("#passwordRegistroVerificacion").value;
+  
   document.querySelector("#pRegistro").innerHTML = "";
 
-  if (usuarioIngresado && passwordIngresado && paisIngresado) {
-    if (passwordIngresado === verificacionPasswordIngresado) {
+  if (usuarioIngresado && passwordIngresado && paisIngresado) {    
       //llamamos a la API
-      const urlAPI = apiBaseURL + "usuarios";
-      const bodyDeSolicitud = {
-        nombre: nombreIngresado,
-        apellido: apellidoIngresado,
-        direccion: direcciónIngresado,
-        email: emailIngresado,
+      const urlAPI = apiBaseURL + "usuarios.php";
+      const bodyDeSolicitud = {   //variables con los datos de los usuarios
+        usuario: usuarioIngresado,
         password: passwordIngresado,
-      }; //variables con los datos de los usuarios
-      fetch(urlAPI, {
-        //llamada http
+        pais: paisIngresado        
+      }; 
+      fetch(urlAPI, { //llamada http
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bodyDeSolicitud),
       })
-        .then((respuestaDeApi) => {
-          // nos entereamos de la promesa cuando se resuelve
+        .then((respuestaDeApi) => { // nos entereamos de la promesa cuando se resuelve         
           if (respuestaDeApi.status === 200) {
             borrarDatos();
             document.querySelector("#pRegistro").innerHTML = "Usuario correctamente registrado, puede iniciar sesión";
@@ -185,20 +173,14 @@ function btnRegistroUsuarioHandler() {
           return respuestaDeApi.json();
       })
         .then((respuestaBody) => {
-           if (respuestaBody.error)
-            document.querySelector("#pRegistro").innerHTML = respuestaBody.error;
+           if (respuestaBody.mensaje) document.querySelector("#pRegistro").innerHTML = respuestaBody.mensaje;
       })
-        .catch((error) => console.log(error));
-        
+        .catch((mensaje) => console.log(mensaje));        
     } else {
-      document.querySelector("#pRegistro").innerHTML =
-        "Ya existe un usuario con ese email.";
+      document.querySelector("#pRegistro").innerHTML = "Todos los campos son obligatorios";
     }
-  } else {
-    document.querySelector("#pRegistro").innerHTML =
-      "Todos los campos son obligatorios";
-  }
-}
+ } 
+
 
 //user:movetrack
 //pass: movetrack
@@ -230,10 +212,7 @@ function btnLoginSesionHandler() {
         if (respuestaBody.apiKey) {
           borrarDatos();
           usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
-          localStorage.setItem(
-            "UsuarioLogueadoIntegrador",
-            JSON.stringify(usuarioLogueado)
-          ); //Queda en el localSorage el UsuarioLogueadoAPP
+          localStorage.setItem("UsuarioLogueadoApp",JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
@@ -321,7 +300,6 @@ function cerrarSesionPorFaltaDeToken() {
   mostrarToast("ERROR", "No autorizado", "Se ha cerrado sesión por seguridad.");
   cerrarSesion();
 }
-
 
 //Funciones Aux
 function borrarDatos() {
