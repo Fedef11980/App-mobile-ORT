@@ -26,7 +26,7 @@ class Usuario {
   }
 }
 
-class Actividad {
+class RegistrarActividad {
   id;
   titulo;
   usuario;
@@ -34,23 +34,48 @@ class Actividad {
   fecha;
 
   static parse(data) {
-    const actividad = new Actividad();
+    const registrarActividad = new RegistrarActividad();
     if (data._id) {
-      producto.id = data._id;
+      registrarActividad.id = data._id;
     }
     if (data.titulo) {
-      producto.titulo = data.titulo;
+      registrarActividad.titulo = data.titulo;
     }
     if (data.usuario) {
-      producto.usuario = data.usuario;
+      registrarActividad.usuario = data.usuario;
     }
     if (data.tiempo) {
-      producto.tiempo = data.tiempo;
+      registrarActividad.tiempo = data.tiempo;
     }
     if (data.fecha) {
-      producto.fecha = data.fecha;
+      registrarActividad.fecha = data.fecha;
+    }
+
+    return registrarActividad;
+  }
+}
+
+class Actividad {
+  id;
+  nombre;
+  imagen;
+
+  static parse(data) {
+    const actividad = new Actividad();
+    if (data._id) {
+      actividad.id = data._id;
+    }
+    if (data.nombre) {
+      actividad.nombre = data.nombre;
+    }
+    if (data.imagen) {
+      actividad.imagen = data.imagen;
     }
 
     return actividad;
+  }
+
+  getURLImagen() {
+    return "https://movetrack.develotion.com/imgs/" + this.imagen + ".jpg";
   }
 }
