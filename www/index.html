@@ -33,6 +33,11 @@
           url="/regActividades"
           component="page-actividades"
         ></ion-route>
+        <ion-route
+          url="/verActividades"
+          component="page-ver-actividades"
+        ></ion-route>
+        <ion-route url="/verUsuarios" component="page-ver-usuarios"></ion-route>
       </ion-router>
       <ion-nav id="nav"></ion-nav>
       <!--Stack de navegación-->
@@ -60,6 +65,18 @@
               onclick="cerrarMenu()"
               id="btnMenuRegActividades"
               >Registro de Actividades</ion-item
+            >
+            <ion-item
+              href="/verActividades"
+              onclick="cerrarMenu()"
+              id="btnMenuVerActividades"
+              >Ver Actividades</ion-item
+            >
+            <ion-item
+              href="/verUsuarios"
+              onclick="cerrarMenu()"
+              id="btnMenuVerUsuarios"
+              >Usuarios</ion-item
             >
             <ion-item onclick="cerrarSesion()" id="btnMenuCerrarSesion"
               >Cerrar Sesion</ion-item
@@ -215,6 +232,14 @@
           Pantalla Actividades
         </ion-content>
       </page-actividades>
+
+      <!--Pantalla ver actividades-->
+
+      <page-ver-actividades class="ion-page" id="verActividades">
+      </page-ver-actividades>
+
+      <!--Pantalla Ver usuarios-->
+      <page-ver-usuarios class="ion-page" id="verUsuarios"> </page-ver-usuarios>
 
       <!--Home-->
       <page-home class="ion-page" id="home"> </page-home>
