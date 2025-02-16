@@ -1,5 +1,6 @@
 //Variables y constantes
 let usuarioLogueado = null;
+
 const apiBaseURL = "https://movetrack.develotion.com/";
 
 //DOM
@@ -195,17 +196,17 @@ function btnRegistroUsuarioHandler() {
 //user:movetrack
 //pass: movetrack
 function btnLoginSesionHandler() {
-  let emailLogin = document.querySelector("#txtLoginMail").value;
-  let passwordLogin = document.querySelector("#txtLoginPassword").value;
-
+  let loginUser = document.querySelector("#txtLoginMail").value;
+  let loginPassword = document.querySelector("#txtLoginPassword").value;
   document.querySelector("#pLogin").innerHTML = "";
 
-  if (emailLogin && passwordLogin) {
+  if (loginUser && loginPassword) {
     const urlAPI = apiBaseURL + "login.php";
     const usuarioLogin = {
-      usuario: emailLogin,
-      password: passwordLogin,
+      usuario: loginUser,
+      password: loginPassword,
     };
+
     fetch(urlAPI, {
       method: "POST",
       headers: {
@@ -222,21 +223,21 @@ function btnLoginSesionHandler() {
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
-          // usuarioLogueadoResponse = Usuario.parse(respuestaBody.data);
-          const usuarioLogueado = respuestaBody.apiKey;
+          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
           localStorage.setItem(
-            "UsuarioLogueadoApp",
+            "UsuarioLogueadoIntegrador",
             JSON.stringify(usuarioLogueado)
-          ); //Queda en el localSorage el UsuarioLogueado
+          ); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
           document.querySelector("#pLogin").innerHTML = respuestaBody.error;
         console.log(usuarioLogueado);
+        console.log(respuestaBody);
+        console.log(respuestaBody.apiKey);
+        console.log(usuarioLogueado);
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((error) => console.log(error));
   } else {
     document.querySelector("#pLogin").innerHTML =
       "Todos los campos son obligatorios";
