@@ -1,5 +1,6 @@
 //Variables y constantes
 let usuarioLogueado = null;
+
 const apiBaseURL = "https://movetrack.develotion.com/";
 
 
@@ -181,17 +182,17 @@ function btnRegistroUsuarioHandler() {
 //user:movetrack
 //pass: movetrack
 function btnLoginSesionHandler() {
-  let emailLogin = document.querySelector("#txtLoginMail").value;
-  let passwordLogin = document.querySelector("#txtLoginPassword").value;
-
+  let loginUser = document.querySelector("#txtLoginMail").value;
+  let loginPassword = document.querySelector("#txtLoginPassword").value;
   document.querySelector("#pLogin").innerHTML = "";
 
-  if (emailLogin && passwordLogin) {
-    const urlAPI = apiBaseURL + "login.php";
+  if (loginUser && loginPassword) {
+    const urlAPI = apiBaseURL + 'login.php';
     const usuarioLogin = {
-      email: emailLogin,
-      password: passwordLogin,
-    };
+      usuario: loginUser,
+      password: loginPassword,
+    };   
+    
     fetch(urlAPI, {
       method: "POST",
       headers: {
@@ -205,21 +206,20 @@ function btnLoginSesionHandler() {
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
-        if (respuestaBody.data?.token) {
+        if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.data);
-          localStorage.setItem(
-            "UsuarioLogueadoApp",
-            JSON.stringify(usuarioLogueado)
-          ); //Queda en el localSorage el UsuarioLogueado
+          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
+          localStorage.setItem("UsuarioLogueadoIntegrador", JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
           document.querySelector("#pLogin").innerHTML = respuestaBody.error;
+          console.log(respuestaBody);
+          console.log(respuestaBody.apiKey);          
+          console.log(usuarioLogueado);          
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((error) => console.log(error));
+      
   } else {
     document.querySelector("#pLogin").innerHTML =
       "Todos los campos son obligatorios";

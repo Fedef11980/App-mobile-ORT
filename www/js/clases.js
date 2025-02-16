@@ -1,26 +1,22 @@
 class Usuario {
-    nombre;
-    apellido;
-    direccion;
-    email;
-    token;
+    usuario;
+    password;
+    idPais;
+    apiKey;
 
     static parse(data){ // un metodo estatico tiene una ventaja
         const usuario= new Usuario()
-        if (data.nombre) {
-            usuario.nombre = data.nombre;
+        if (data.usuario) {
+            usuario.usuario = data.usuario;
+        }       
+        if (data.password) {
+            usuario.password = data.password;
         }
-        if (data.apellido) {
-            usuario.apellido = data.apellido;
+        if (data.idPais) {
+            usuario.idPais = data.idPais;
         }
-        if (data.direccion) {
-            usuario.direccion = data.direccion;
-        }
-        if (data.email) {
-            usuario.email = data.email;
-        }
-        if (data.token) {
-            usuario.token = data.token;
+        if (data.apiKey) {
+            usuario.apiKey = data.apiKey
         }
         return usuario
     }
