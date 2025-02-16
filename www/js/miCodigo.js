@@ -11,6 +11,8 @@ const REG_ACTIVIDADES = document.querySelector("#regActividades");
 const NAV = document.querySelector("#nav");
 const ROUTER = document.querySelector("#ruteo");
 const MENU = document.querySelector("#menu");
+const VER_ACTIVIDADES = document.querySelector("#verActividades");
+const VER_USUARIOS = document.querySelector("#verUsuarios");
 
 //Inicialización del sistema
 inicializar();
@@ -91,6 +93,8 @@ function ocultarPantallas() {
   SCREEN_LOGIN.style.display = "none";
   SCREEN_REG.style.display = "none";
   REG_ACTIVIDADES.style.display = "none";
+  VER_ACTIVIDADES.style.display = "none";
+  VER_USUARIOS.style.display = "none";
 }
 
 function actualizarMenu() {
@@ -98,10 +102,14 @@ function actualizarMenu() {
   document.querySelector("#btnMenuRegistro").style.display = "none";
   document.querySelector("#btnMenuRegActividades").style.display = "none";
   document.querySelector("#btnMenuCerrarSesion").style.display = "none";
+  document.querySelector("#btnMenuVerActividades").style.display = "none";
+  document.querySelector("#btnMenuVerUsuarios").style.display = "none";
 
   if (usuarioLogueado) {
     document.querySelector("#btnMenuRegActividades").style.display = "block";
     document.querySelector("#btnMenuCerrarSesion").style.display = "block";
+    document.querySelector("#btnMenuVerActividades").style.display = "block";
+    document.querySelector("#btnMenuVerUsuarios").style.display = "block";
   } else {
     document.querySelector("#btnMenuLogin").style.display = "block";
     document.querySelector("#btnMenuRegistro").style.display = "block";
@@ -129,7 +137,7 @@ function cerrarSesion() {
 function btnRegistroUsuarioHandler() {
   let nombreIngresado = document.querySelector("#txtRegistroNombre").value;
   let apellidoIngresado = document.querySelector("#txtRegistroApellido").value;
-  let paisIngresado = document.querySelector("#").value;
+  // let paisIngresado = document.querySelector("#").value;
 
   let verificacionPasswordIngresado = document.querySelector(
     "#passwordRegistroVerificacion"
