@@ -1,5 +1,6 @@
 //Variables y constantes
 let usuarioLogueado = null;
+let actividades = null;
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -37,6 +38,10 @@ function subscripcionEventos() {
   document
     .querySelector("#btnRegistroUsuario")
     .addEventListener("click", btnRegistroUsuarioHandler);
+
+  document
+    .querySelector("#btnVerActividades")
+    .addEventListener("click", btnMostrarActividades);
 }
 
 function cerrarMenu() {
@@ -59,6 +64,9 @@ function navegar(evt) {
       break;
     case "/regActividades":
       mostrarRegistroActividades();
+      break;
+    case "/verActividades":
+      mostrarVerActividades();
       break;
   }
 }
@@ -86,6 +94,11 @@ function mostrarRegistroUsuario() {
 function mostrarRegistroActividades() {
   ocultarPantallas();
   REG_ACTIVIDADES.style.display = "block";
+}
+
+function mostrarVerActividades() {
+  ocultarPantallas();
+  VER_ACTIVIDADES.style.display = "block";
 }
 
 function ocultarPantallas() {
@@ -256,4 +269,81 @@ function btnLoginSesionHandler() {
 function borrarDatos() {
   document.querySelector("#txtLoginMail").value = "";
   document.querySelector("#txtLoginPassword").value = "";
+}
+
+function btnMostrarActividades() {
+  fetch(apiBaseURL + "/actividades.php", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-auth": usuarioLogueado.apiKey,
+    },
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) {
+        cerrarSesionPorFaltaDeToken();
+      } else {
+        return respuestaAPI.json();
+      }
+    })
+    .then((respuestaBody) => {
+      if (respuestaBody?.error) {
+        mostrarToast("ERROR", "Error", respuestaBody.error);
+      } else if (respuestaBody?.data?.length > 0) {
+        respuestaBody.data.forEach((a) => {
+          actividades.push(Actividad.parse(a));
+        });
+        completarTablaActividades();
+      } else {
+        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+      }
+    })
+    .catch((error) => console.log(error));
+}
+
+function completarTablaActividades() {
+  if (actividades.length === 0) {
+    listadoAct = "No se encontraron actividades.";
+  } else {
+    let listadoAct = "<ion-list>";
+    listadoAct += `
+              <ion-item class="ion-item-producto" producto-id="${a.id}">
+                  <ion-thumbnail slot="start">
+                      <img src="${a.getURLImagen()}" width="100"/>
+                  </ion-thumbnail>
+                  <ion-label>
+                      <h2>${a.nombre}</h2>
+  
+                  </ion-label>
+                  
+              </ion-item>
+          `;
+
+    listadoAct += "</ion-list>";
+
+    document.querySelector("#divAct").innerHTML = listadoAct;
+  }
+}
+
+async function mostrarToast(tipo, titulo, mensaje) {
+  const toast = document.createElement("ion-toast");
+  toast.header = titulo;
+  toast.message = mensaje;
+  toast.position = "bottom";
+  toast.duration = 2000;
+  if (tipo === "ERROR") {
+    toast.color = "danger";
+  } else if (tipo === "SUCCESS") {
+    toast.color = "success";
+  } else if (tipo === "WARNING") {
+    toast.color = "warning";
+  }
+
+  document.body.appendChild(toast);
+  return toast.present();
+}
+
+function cerrarSesionPorFaltaDeToken() {
+  mostrarToast("ERROR", "No autorizado", "Se ha cerrado sesión por seguridad.");
+  cerrarSesion();
 }
