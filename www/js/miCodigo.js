@@ -148,24 +148,14 @@ function cerrarSesion() {
 
 //Registro de usuarios
 function btnRegistroUsuarioHandler() {
-  let nombreIngresado = document.querySelector("#txtRegistroNombre").value;
-  let apellidoIngresado = document.querySelector("#txtRegistroApellido").value;
-  // let paisIngresado = document.querySelector("#").value;
+  let usuarioIngresado = document.querySelector("#txtNombreRegistro").value;
+  let passwordIngresado = document.querySelector("#txtPasswoedIngresado").value;
+  let paisIngresado = document.querySelector("#txtPaisIngresado").value;
 
-  let verificacionPasswordIngresado = document.querySelector(
-    "#passwordRegistroVerificacion"
-  ).value;
-
+  let verificacionPasswordIngresado = document.querySelector("#passwordRegistroVerificacion").value;
   document.querySelector("#pRegistro").innerHTML = "";
 
-  if (
-    nombreIngresado &&
-    apellidoIngresado &&
-    direcciónIngresado &&
-    emailIngresado &&
-    passwordIngresado &&
-    verificacionPasswordIngresado
-  ) {
+  if (usuarioIngresado && passwordIngresado && paisIngresado) {
     if (passwordIngresado === verificacionPasswordIngresado) {
       //llamamos a la API
       const urlAPI = apiBaseURL + "usuarios";
@@ -188,22 +178,18 @@ function btnRegistroUsuarioHandler() {
           // nos entereamos de la promesa cuando se resuelve
           if (respuestaDeApi.status === 200) {
             borrarDatos();
-            document.querySelector("#pRegistro").innerHTML =
-              "Usuario correctamente registrado, puede iniciar sesión";
+            document.querySelector("#pRegistro").innerHTML = "Usuario correctamente registrado, puede iniciar sesión";
           } else {
-            document.querySelector("#pRegistro").innerHTML =
-              "Ha ocurrido un error, intente más tarde";
+            document.querySelector("#pRegistro").innerHTML = "Ha ocurrido un error, intente más tarde";
           }
           return respuestaDeApi.json();
-        })
+      })
         .then((respuestaBody) => {
-          if (respuestaBody.error)
-            document.querySelector("#pRegistro").innerHTML =
-              respuestaBody.error;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+           if (respuestaBody.error)
+            document.querySelector("#pRegistro").innerHTML = respuestaBody.error;
+      })
+        .catch((error) => console.log(error));
+        
     } else {
       document.querySelector("#pRegistro").innerHTML =
         "Ya existe un usuario con ese email.";
@@ -237,8 +223,7 @@ function btnLoginSesionHandler() {
     })
       .then((respuestaLogin) => {
         if (respuestaLogin.status !== 200)
-          document.querySelector("#pLogin").innerHTML =
-            "Ha ocurrido un error, intente nuevamente";
+          document.querySelector("#pLogin").innerHTML = "Ha ocurrido un error, intente nuevamente";
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
@@ -252,23 +237,12 @@ function btnLoginSesionHandler() {
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
-          document.querySelector("#pLogin").innerHTML = respuestaBody.error;
-        console.log(usuarioLogueado);
-        console.log(respuestaBody);
-        console.log(respuestaBody.apiKey);
-        console.log(usuarioLogueado);
+          document.querySelector("#pLogin").innerHTML = respuestaBody.error;        
       })
       .catch((error) => console.log(error));
   } else {
-    document.querySelector("#pLogin").innerHTML =
-      "Todos los campos son obligatorios";
+    document.querySelector("#pLogin").innerHTML = "Todos los campos son obligatorios";
   }
-}
-
-//Funciones Aux
-function borrarDatos() {
-  document.querySelector("#txtLoginMail").value = "";
-  document.querySelector("#txtLoginPassword").value = "";
 }
 
 function btnMostrarActividades() {
@@ -346,4 +320,11 @@ async function mostrarToast(tipo, titulo, mensaje) {
 function cerrarSesionPorFaltaDeToken() {
   mostrarToast("ERROR", "No autorizado", "Se ha cerrado sesión por seguridad.");
   cerrarSesion();
+}
+
+
+//Funciones Aux
+function borrarDatos() {
+  document.querySelector("#txtLoginMail").value = "";
+  document.querySelector("#txtLoginPassword").value = "";
 }
