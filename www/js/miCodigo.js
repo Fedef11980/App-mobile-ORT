@@ -203,7 +203,7 @@ function btnLoginSesionHandler() {
   if (emailLogin && passwordLogin) {
     const urlAPI = apiBaseURL + "login.php";
     const usuarioLogin = {
-      email: emailLogin,
+      usuario: emailLogin,
       password: passwordLogin,
     };
     fetch(urlAPI, {
@@ -220,9 +220,10 @@ function btnLoginSesionHandler() {
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
-        if (respuestaBody.data?.token) {
+        if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.data);
+          // usuarioLogueadoResponse = Usuario.parse(respuestaBody.data);
+          const usuarioLogueado = respuestaBody.apiKey;
           localStorage.setItem(
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
@@ -231,6 +232,7 @@ function btnLoginSesionHandler() {
           NAV.popToRoot();
         } else if (respuestaBody.error)
           document.querySelector("#pLogin").innerHTML = respuestaBody.error;
+        console.log(usuarioLogueado);
       })
       .catch((error) => {
         console.log(error);
