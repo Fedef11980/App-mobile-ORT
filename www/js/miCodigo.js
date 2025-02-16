@@ -21,7 +21,7 @@ function inicializar() {
 
 function actualizarUsuarioLogueadoDesdeLS() {
   let usuarioRecuperado = localStorage.getItem("UsuarioLogueadoApp"); //nos devulve un texto
-  if (usuarioRecuperado) usuarioLogueado = JSON.parse(usuarioRecuperado); //parseo para ver el objeto que se guardo en el localStorage
+  if (usuarioRecuperado) usuarioLogueado = usuarioRecuperado; //parseo para ver el objeto que se guardo en el localStorage
 }
 
 function subscripcionEventos() {
