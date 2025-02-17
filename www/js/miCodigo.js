@@ -225,7 +225,7 @@ function btnLoginSesionHandler() {
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado.apiKey = Usuario.parse(respuestaBody.apiKey);
+          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
           localStorage.setItem(
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
@@ -248,19 +248,18 @@ function btnMostrarActividades() {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      apiKey: usuarioLogueado.apiKey,
+      apikey: usuarioLogueado.apiKey,
       iduser: usuarioLogueado.id,
     },
   })
     .then((respuestaAPI) => {
-      if (respuestaAPI.status === 401) {
-        cerrarSesionPorFaltaDeToken();
-      } else {
+      if (respuestaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+      else {
         return respuestaAPI.json();
       }
     })
     .then((respuestaBody) => {
-      if (respuestaBody?.mensaje) {
+      if (respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.data?.length > 0) {
         respuestaBody.data.forEach((a) => {
@@ -272,7 +271,7 @@ function btnMostrarActividades() {
       }
       console.log(respuestaBody);
     })
-    .catch((error) => console.log(error));
+    .catch((mensaje) => console.log(mensaje));
 }
 
 function completarTablaActividades() {

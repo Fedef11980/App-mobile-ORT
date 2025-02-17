@@ -176,11 +176,12 @@
                 clear-input="true"
                 id="txtPasswoedIngresado"
                 placeholder="Contraseña"
-              ></ion-input>
-              <ion-input-password-toggle
-                slot="end"
-                color="medium"
-              ></ion-input-password-toggle>
+              >
+                <ion-input-password-toggle
+                  slot="end"
+                  color="medium"
+                ></ion-input-password-toggle>
+              </ion-input>
             </ion-item>
             <!--país-->
             <ion-item>
@@ -190,7 +191,8 @@
                 clear-input="true"
                 id="txtPaisIngresado"
                 placeholder="Pais"
-              ></ion-input>
+              >
+              </ion-input>
               <ion-icon name="earth-outline"></ion-icon>
             </ion-item>
           </ion-list>
@@ -242,6 +244,15 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <ion-button fill="solid" color="medium" id="btnVerActividades"
+                  >Ver actividades</ion-button
+                >
+              </ion-col>
+            </ion-row>
+          </ion-grid>
           <ion-grid>
             <ion-row class="ion-justify-content-center">
               <ion-col size="auto">

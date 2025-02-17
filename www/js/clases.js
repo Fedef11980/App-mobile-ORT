@@ -7,16 +7,20 @@ class Usuario {
   static parse(data) {
     // un metodo estatico tiene una ventaja
     const usuario = new Usuario();
+    if (data.usuario) {
+      usuario.usuario = data.usuario;
     if (data?.usuario) {
       usuario.usuario = data.usuario;
     }
-    if (data?.password) {
+    if (data.password) {
       usuario.password = data.password;
     }
+    if (data.idPais) {
+      usuario.idPais = data.idPais;
     if (data?.idPais) {
       usuario.idPais = data.idPais;
     }
-    if (data?.apiKey) {
+    if (data.apiKey) {
       usuario.apiKey = data.apiKey;
     }
     return usuario;
@@ -47,7 +51,6 @@ class RegistrarActividad {
     if (data.fecha) {
       registrarActividad.fecha = data.fecha;
     }
-
     return registrarActividad;
   }
 }
