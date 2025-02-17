@@ -23,7 +23,7 @@ function inicializar() {
 }
 
 function actualizarUsuarioLogueadoDesdeLS() {
-  let usuarioRecuperado = localStorage.getItem("UsuarioLogueadoApp"); //nos devulve un texto
+  let usuarioRecuperado = localStorage.getItem("UsuarioLogueadoApp"); //nos devuelve un texto
   if (usuarioRecuperado) usuarioLogueado = usuarioRecuperado; //parseo para ver el objeto que se guardo en el localStorage
 }
 
@@ -208,10 +208,10 @@ function btnLoginSesionHandler() {
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
-        if (respuestaBody.apiKey) {
+        if (respuestaBody.apiKey) {                 
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);         
-          localStorage.setItem("UsuarioLogueadoApp",JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
+          usuarioLogueado = Usuario.parse(respuestaBody);
+          localStorage.setItem("UsuarioLogueadoApp",JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP          
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
