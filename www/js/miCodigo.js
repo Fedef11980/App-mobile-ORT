@@ -181,7 +181,6 @@ function btnRegistroUsuarioHandler() {
     }
  } 
 
-
 //user:movetrack
 //pass: movetrack
 function btnLoginSesionHandler() {
@@ -211,7 +210,7 @@ function btnLoginSesionHandler() {
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
+          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);         
           localStorage.setItem("UsuarioLogueadoApp",JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
@@ -225,23 +224,25 @@ function btnLoginSesionHandler() {
 }
 
 function btnMostrarActividades() {
-  fetch(apiBaseURL + "/actividades.php", {
+  const urlAPI = apiBaseURL + "actividades.php";    
+  fetch( urlAPI, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "x-auth": usuarioLogueado.apiKey,
-    },
+      "apikey": usuarioLogueado.apiKey,
+      "iduser": usuarioLogueado.id,
+    },   
   })
+  
     .then((respuestaAPI) => {
-      if (respuestaAPI.status === 401) {
-        cerrarSesionPorFaltaDeToken();
-      } else {
-        return respuestaAPI.json();
+      if (respuestaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+      else {
+        return respuestaAPI.json();      
       }
     })
-    .then((respuestaBody) => {
-      if (respuestaBody?.error) {
-        mostrarToast("ERROR", "Error", respuestaBody.error);
+    .then((respuestaBody) => {      
+      if (respuestaBody.mensaje) {
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.data?.length > 0) {
         respuestaBody.data.forEach((a) => {
           actividades.push(Actividad.parse(a));
@@ -251,7 +252,7 @@ function btnMostrarActividades() {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
     })
-    .catch((error) => console.log(error));
+    .catch((mensaje) => console.log(mensaje));
 }
 
 function completarTablaActividades() {

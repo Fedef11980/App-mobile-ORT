@@ -105,13 +105,16 @@
             <!--pass-->
             <ion-item>
               <ion-input type="password" label="Contraseña" label-placement="floating" clear-input="true"
-                id="txtPasswoedIngresado" placeholder="Contraseña"></ion-input>
-              <ion-input-password-toggle slot="end" color="medium"></ion-input-password-toggle>
+                id="txtPasswoedIngresado" placeholder="Contraseña">
+                <ion-input-password-toggle slot="end" color="medium"></ion-input-password-toggle>
+              </ion-input>
+              
             </ion-item>
             <!--país-->
             <ion-item>
               <ion-input label="Ingrese país de residencia" label-placement="floating" clear-input="true"
-                id="txtPaisIngresado" placeholder="Pais"></ion-input>
+                id="txtPaisIngresado" placeholder="Pais">
+              </ion-input>
               <ion-icon name="earth-outline"></ion-icon>
             </ion-item>
           </ion-list>
@@ -160,7 +163,13 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          pantalla de actividades
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <ion-button fill="solid" color="medium" id="btnVerActividades">Ver actividades</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>          
           <div id="divAct"></div>
         </ion-content>
       </page-ver-actividades>
