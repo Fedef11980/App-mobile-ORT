@@ -31,11 +31,17 @@ function subscripcionEventos() {
   //Routeo
   ROUTER.addEventListener("ionRouteDidChange", navegar);
   //Login
-  document.querySelector("#btnLoginUsuario").addEventListener("click", btnLoginSesionHandler);
+  document
+    .querySelector("#btnLoginUsuario")
+    .addEventListener("click", btnLoginSesionHandler);
   //RegistroUsuario
-  document.querySelector("#btnRegistroUsuario").addEventListener("click", btnRegistroUsuarioHandler);
+  document
+    .querySelector("#btnRegistroUsuario")
+    .addEventListener("click", btnRegistroUsuarioHandler);
   //Mostrar Actividades
-  document.querySelector("#btnVerActividades").addEventListener("click", btnMostrarActividades);
+  document
+    .querySelector("#btnVerActividades")
+    .addEventListener("click", btnMostrarActividades);
 }
 
 function cerrarMenu() {
@@ -145,42 +151,49 @@ function btnRegistroUsuarioHandler() {
   let usuarioIngresado = document.querySelector("#txtNombreRegistro").value;
   let passwordIngresado = document.querySelector("#txtPasswoedIngresado").value;
   let paisIngresado = document.querySelector("#txtPaisIngresado").value;
-  
+
   document.querySelector("#pRegistro").innerHTML = "";
 
-  if (usuarioIngresado && passwordIngresado && paisIngresado) {    
-      //llamamos a la API
-      const urlAPI = apiBaseURL + "usuarios.php";
-      const bodyDeSolicitud = {   //variables con los datos de los usuarios
-        usuario: usuarioIngresado,
-        password: passwordIngresado,
-        pais: paisIngresado        
-      }; 
-      fetch(urlAPI, { //llamada http
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bodyDeSolicitud),
+  if (usuarioIngresado && passwordIngresado && paisIngresado) {
+    //llamamos a la API
+    const urlAPI = apiBaseURL + "usuarios.php";
+    const bodyDeSolicitud = {
+      //variables con los datos de los usuarios
+      usuario: usuarioIngresado,
+      password: passwordIngresado,
+      pais: paisIngresado,
+    };
+    fetch(urlAPI, {
+      //llamada http
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyDeSolicitud),
+    })
+      .then((respuestaDeApi) => {
+        // nos entereamos de la promesa cuando se resuelve
+        if (respuestaDeApi.status === 200) {
+          borrarDatos();
+          document.querySelector("#pRegistro").innerHTML =
+            "Usuario correctamente registrado, puede iniciar sesión";
+        } else {
+          document.querySelector("#pRegistro").innerHTML =
+            "Ha ocurrido un error, intente más tarde";
+        }
+        return respuestaDeApi.json();
       })
-        .then((respuestaDeApi) => { // nos entereamos de la promesa cuando se resuelve         
-          if (respuestaDeApi.status === 200) {
-            borrarDatos();
-            document.querySelector("#pRegistro").innerHTML = "Usuario correctamente registrado, puede iniciar sesión";
-          } else {
-            document.querySelector("#pRegistro").innerHTML = "Ha ocurrido un error, intente más tarde";
-          }
-          return respuestaDeApi.json();
+      .then((respuestaBody) => {
+        if (respuestaBody.mensaje)
+          document.querySelector("#pRegistro").innerHTML =
+            respuestaBody.mensaje;
       })
-        .then((respuestaBody) => {
-           if (respuestaBody.mensaje) document.querySelector("#pRegistro").innerHTML = respuestaBody.mensaje;
-      })
-        .catch((mensaje) => console.log(mensaje));        
-    } else {
-      document.querySelector("#pRegistro").innerHTML = "Todos los campos son obligatorios";
-    }
- } 
-
+      .catch((mensaje) => console.log(mensaje));
+  } else {
+    document.querySelector("#pRegistro").innerHTML =
+      "Todos los campos son obligatorios";
+  }
+}
 
 //user:movetrack
 //pass: movetrack
@@ -205,31 +218,38 @@ function btnLoginSesionHandler() {
     })
       .then((respuestaLogin) => {
         if (respuestaLogin.status !== 200)
-          document.querySelector("#pLogin").innerHTML = "Ha ocurrido un error, intente nuevamente";
+          document.querySelector("#pLogin").innerHTML =
+            "Ha ocurrido un error, intente nuevamente";
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
-          localStorage.setItem("UsuarioLogueadoApp",JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
+          usuarioLogueado.apiKey = Usuario.parse(respuestaBody.apiKey);
+          localStorage.setItem(
+            "UsuarioLogueadoApp",
+            JSON.stringify(usuarioLogueado)
+          ); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.error)
-          document.querySelector("#pLogin").innerHTML = respuestaBody.error;        
+          document.querySelector("#pLogin").innerHTML = respuestaBody.error;
       })
       .catch((error) => console.log(error));
   } else {
-    document.querySelector("#pLogin").innerHTML = "Todos los campos son obligatorios";
+    document.querySelector("#pLogin").innerHTML =
+      "Todos los campos son obligatorios";
   }
 }
 
 function btnMostrarActividades() {
-  fetch(apiBaseURL + "/actividades.php", {
+  const urlAPI = apiBaseURL + "actividades.php";
+  fetch(urlAPI, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "x-auth": usuarioLogueado.apiKey,
+      apiKey: usuarioLogueado.apiKey,
+      iduser: usuarioLogueado.id,
     },
   })
     .then((respuestaAPI) => {
@@ -240,8 +260,8 @@ function btnMostrarActividades() {
       }
     })
     .then((respuestaBody) => {
-      if (respuestaBody?.error) {
-        mostrarToast("ERROR", "Error", respuestaBody.error);
+      if (respuestaBody?.mensaje) {
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.data?.length > 0) {
         respuestaBody.data.forEach((a) => {
           actividades.push(Actividad.parse(a));
@@ -250,6 +270,7 @@ function btnMostrarActividades() {
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
+      console.log(respuestaBody);
     })
     .catch((error) => console.log(error));
 }
