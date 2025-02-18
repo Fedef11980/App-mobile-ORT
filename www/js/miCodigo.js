@@ -23,7 +23,7 @@ function inicializar() {
 }
 
 function actualizarUsuarioLogueadoDesdeLS() {
-  let usuarioRecuperado = localStorage.getItem("UsuarioLogueadoApp"); //nos devulve un texto
+  let usuarioRecuperado = localStorage.getItem("UsuarioLogueadoApp"); //nos devuelve un texto
   if (usuarioRecuperado) usuarioLogueado = usuarioRecuperado; //parseo para ver el objeto que se guardo en el localStorage
 }
 
@@ -225,7 +225,7 @@ function btnLoginSesionHandler() {
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
-          usuarioLogueado = Usuario.parse(respuestaBody.apiKey);
+          usuarioLogueado = Usuario.parse(respuestaBody);
           localStorage.setItem(
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)

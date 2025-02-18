@@ -3,6 +3,7 @@ class Usuario {
   password;
   idPais;
   apiKey;
+  id;
 
   static parse(data) {
     // un metodo estatico tiene una ventaja
@@ -19,6 +20,9 @@ class Usuario {
     }
     if (data.apiKey) {
       usuario.apiKey = data.apiKey;
+    }
+    if (data.id) {
+      usuario.id = data.id;
     }
     return usuario;
   }
