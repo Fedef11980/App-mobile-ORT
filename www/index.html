@@ -5,6 +5,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Título</title>
+    <!--Mapa-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <!--Ionic-->
     <script
       type="module"
       src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"
@@ -227,9 +241,59 @@
             <ion-title>Registro de Actividades</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content
-          ><!--Me tranforma esta pantalla en algo scrolleable-->
-          Pantalla Actividades
+
+        <ion-content class="ion-padding">
+          <ion-list>
+            <!-- Nombre de la actividad -->
+            <ion-item>
+              <ion-input
+                label="Nombre de la actividad"
+                label-placement="floating"
+                clear-input="true"
+                id="txtNombreActividad"
+                placeholder="Ingrese el nombre"
+              ></ion-input>
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-item>
+
+            <!-- Descripción -->
+            <ion-item>
+              <ion-textarea
+                label="Tiempo"
+                label-placement="floating"
+                id="txtTiempoActividad"
+                placeholder="Ingrese el tiempo de duración"
+              ></ion-textarea>
+              <ion-icon name="alarm-outline"></ion-icon>
+            </ion-item>
+
+            <!-- Fecha -->
+            <ion-item>
+              <ion-input
+                label="Fecha"
+                label-placement="floating"
+                type="date"
+                id="txtFechaActividad"
+              ></ion-input>
+              <ion-icon name="calendar-outline"></ion-icon>
+            </ion-item>
+          </ion-list>
+
+          <!-- Botón de registrar -->
+
+          <ion-grid>
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="auto">
+                <ion-button
+                  fill="solid"
+                  color="medium"
+                  id="btnRegistrarActividad"
+                >
+                  Registrar Actividad
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
         </ion-content>
       </page-actividades>
 
@@ -253,21 +317,17 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-          <ion-grid>
-            <ion-row class="ion-justify-content-center">
-              <ion-col size="auto">
-                <ion-button fill="solid" color="medium" id="btnVerActividades"
-                  >Ver actividades</ion-button
-                >
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+
           <div id="divAct"></div>
         </ion-content>
       </page-ver-actividades>
 
       <!--Pantalla Ver usuarios-->
-      <page-ver-usuarios class="ion-page" id="verUsuarios"> </page-ver-usuarios>
+      <page-ver-usuarios class="ion-page" id="verUsuarios">
+        <ion-content>
+          <div id="miMapa" style="height: 500px"></div>
+        </ion-content>
+      </page-ver-usuarios>
 
       <!--Home-->
       <page-home class="ion-page" id="home"> </page-home>

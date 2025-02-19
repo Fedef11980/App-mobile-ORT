@@ -43,9 +43,6 @@ class RegistrarActividad {
     if (data.titulo) {
       registrarActividad.titulo = data.titulo;
     }
-    if (data.usuario) {
-      registrarActividad.usuario = data.usuario;
-    }
     if (data.tiempo) {
       registrarActividad.tiempo = data.tiempo;
     }

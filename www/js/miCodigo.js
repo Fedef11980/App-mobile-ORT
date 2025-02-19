@@ -4,6 +4,7 @@ let actividades = null;
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
+let map = null;
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
 const SCREEN_LOGIN = document.querySelector("#login");
@@ -42,6 +43,10 @@ function subscripcionEventos() {
   document
     .querySelector("#btnVerActividades")
     .addEventListener("click", btnMostrarActividades);
+
+  document
+    .querySelector("#btnRegistrarActividad")
+    .addEventListener("click", registrarActividad);
 }
 
 function cerrarMenu() {
@@ -68,6 +73,9 @@ function navegar(evt) {
     case "/verActividades":
       mostrarVerActividades();
       break;
+    case "/verUsuarios":
+      mostrarMapaUsuarios();
+      break;
   }
 }
 
@@ -79,6 +87,20 @@ function verificarInicio() {
     NAV.setRoot("page-login");
     NAV.popToRoot();
   }
+}
+
+function inicializarMapa() {
+  if (!map) {
+    map = L.map("miMapa").setView([51.505, -0.09], 13);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+    L.marker([51.5, -0.09]).addTo(map).bindPopup("Hola!").openPopup();
+  }
+}
+
+function mostrarMapaUsuarios() {
+  ocultarPantallas();
+  inicializarMapa();
+  VER_USUARIOS.style.display = "block";
 }
 
 function mostrarLogin() {
@@ -244,6 +266,8 @@ function btnLoginSesionHandler() {
 
 function btnMostrarActividades() {
   const urlAPI = apiBaseURL + "actividades.php";
+  console.log(usuarioLogueado);
+
   fetch(urlAPI, {
     method: "GET",
     headers: {
@@ -296,6 +320,52 @@ function completarTablaActividades() {
 
     document.querySelector("#divAct").innerHTML = listadoAct;
   }
+}
+
+function registrarActividad() {
+  const titulo = document.querySelector("#txtNombreActividad").value;
+  const tiempo = document.querySelector("#txtTiempoActividad").value;
+  const fecha = document.querySelector("#txtFechaActividad").value;
+
+  const nuevaActividad = new RegistrarActividad();
+  nuevaActividad.titulo = titulo;
+  nuevaActividad.tiempo = tiempo;
+  nuevaActividad.fecha = fecha;
+
+  console.log(nuevaActividad);
+
+  const urlApi = apiBaseURL + "registros.php";
+
+  fetch(urlApi, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: usuarioLogueado.apiKey,
+      iduser: usuarioLogueado.id,
+    },
+    body: JSON.stringify(nuevaActividad),
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) {
+        cerrarSesionPorFaltaDeToken();
+        mostrarToast("ERROR", "Error", respuestaAPI.mensaje);
+      }
+      return respuestaAPI.json();
+    })
+    .then((respuestaBody) => {
+      if (respuestaBody.mensaje) {
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      } else if (respuestaBody?.data?.length > 0) {
+        respuestaBody.data.forEach((a) => {
+          actividades.push(Actividad.parse(a));
+        });
+        completarTablaActividades();
+      } else {
+        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+      }
+      console.log(respuestaBody);
+    })
+    .catch((error) => console.log("Error:", error));
 }
 
 async function mostrarToast(tipo, titulo, mensaje) {
