@@ -254,13 +254,16 @@ function btnLoginSesionHandler() {
           ); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
-        } else if (respuestaBody.error)
-          document.querySelector("#pLogin").innerHTML = respuestaBody.error;
+        } else if (respuestaBody.mensaje)
+          document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
       })
-      .catch((error) => console.log(error));
+      .catch((mensaje) => console.log(mensaje));
   } else {
-    document.querySelector("#pLogin").innerHTML =
-      "Todos los campos son obligatorios";
+    mostrarToast(
+      "ERROR",
+      "Datos incompletos",
+      "Todos los campos son obligatorios"
+    );
   }
 }
 
