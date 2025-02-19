@@ -1,6 +1,6 @@
 //Variables y constantes
 let usuarioLogueado = null;
-let actividades = null;
+let actividades = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -240,18 +240,14 @@ function btnLoginSesionHandler() {
     })
       .then((respuestaLogin) => {
         if (respuestaLogin.status !== 200)
-          document.querySelector("#pLogin").innerHTML =
-            "Ha ocurrido un error, intente nuevamente";
+          document.querySelector("#pLogin").innerHTML = "Ha ocurrido un error, intente nuevamente";
         return respuestaLogin.json();
       })
       .then((respuestaBody) => {
         if (respuestaBody.apiKey) {
           borrarDatos();
           usuarioLogueado = Usuario.parse(respuestaBody);
-          localStorage.setItem(
-            "UsuarioLogueadoApp",
-            JSON.stringify(usuarioLogueado)
-          ); //Queda en el localSorage el UsuarioLogueadoAPP
+          localStorage.setItem("UsuarioLogueadoApp", JSON.stringify(usuarioLogueado)); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.mensaje)
@@ -259,15 +255,15 @@ function btnLoginSesionHandler() {
       })
       .catch((mensaje) => console.log(mensaje));
   } else {
-    mostrarToast(
-      "ERROR",
-      "Datos incompletos",
-      "Todos los campos son obligatorios"
+    mostrarToast("ERROR","Datos incompletos", "Todos los campos son obligatorios"
     );
   }
 }
 
 function btnMostrarActividades() {
+  const usuarioLogueadoVerActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
   const urlAPI = apiBaseURL + "actividades.php";
   console.log(usuarioLogueado);
 
@@ -275,66 +271,67 @@ function btnMostrarActividades() {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      apikey: usuarioLogueado.apiKey,
-      iduser: usuarioLogueado.id,
+      apikey: usuarioLogueadoVerActividad.apiKey,
+      iduser: usuarioLogueadoVerActividad.id,
     },
   })
     .then((respuestaAPI) => {
       if (respuestaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-      else {
-        return respuestaAPI.json();
-      }
+      else return respuestaAPI.json();
     })
     .then((respuestaBody) => {
       if (respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      } else if (respuestaBody?.data?.length > 0) {
-        respuestaBody.data.forEach((a) => {
-          actividades.push(Actividad.parse(a));
+      } else if (respuestaBody.actividades.length > 0) {
+        respuestaBody.actividades.forEach((act) => {
+          actividades.push(Actividad.parse(act));
         });
-        completarTablaActividades();
+        completarTablaActividades(actividades);
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
       console.log(respuestaBody);
     })
-    .catch((mensaje) => console.log(mensaje));
+    .catch((error) => console.log(error));
 }
 
-function completarTablaActividades() {
-  if (actividades.length === 0) {
-    listadoAct = "No se encontraron actividades.";
-  } else {
-    let listadoAct = "<ion-list>";
-    listadoAct += `
-              <ion-item class="ion-item-producto" producto-id="${a.id}">
-                  <ion-thumbnail slot="start">
-                      <img src="${a.getURLImagen()}" width="100"/>
-                  </ion-thumbnail>
-                  <ion-label>
-                      <h2>${a.nombre}</h2>
-  
-                  </ion-label>
-                  
-              </ion-item>
-          `;
-
-    listadoAct += "</ion-list>";
-
-    document.querySelector("#divAct").innerHTML = listadoAct;
-  }
+function completarTablaActividades(actividades) {
+  let listadoAct = "<ion-list>";
+  actividades.forEach((act) => {
+    if (actividades.length === 0) {
+      listadoAct = `<p>No se encontraron actividades.</p>`;
+    } else {
+      listadoAct += `
+                <ion-item class="ion-item-producto" producto-id="${act.id}">
+                    <ion-thumbnail slot="start">
+                        <img src="${act.getURLImagen()}" width="200"/>
+                    </ion-thumbnail>
+                    <ion-label>
+                        <h2>${act.nombre}</h2>    
+                    </ion-label>                    
+                </ion-item>`;
+    }
+  });
+  listadoAct += "</ion-list>";
+  document.querySelector("#divAct").innerHTML = listadoAct;
 }
 
 function registrarActividad() {
+  const usuarioLogueadoActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
   const titulo = document.querySelector("#txtNombreActividad").value;
   const tiempo = document.querySelector("#txtTiempoActividad").value;
   const fecha = document.querySelector("#txtFechaActividad").value;
+  document.querySelector("#btnRegistrarActividad").innerHTML = "";
+  
+    const nuevaActividad= {
+    idActividad: +1,
+    idUsuario: usuarioLogueadoActividad.id,
+    tiempo: tiempo,
+    fecha: fecha,
+    titulo: titulo,
+  };  
 
-  const nuevaActividad = new RegistrarActividad();
-  nuevaActividad.titulo = titulo;
-  nuevaActividad.tiempo = tiempo;
-  nuevaActividad.fecha = fecha;
-
+  
   console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
@@ -343,8 +340,8 @@ function registrarActividad() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: usuarioLogueado.apiKey,
-      iduser: usuarioLogueado.id,
+      apikey: usuarioLogueadoActividad.apiKey,
+      iduser: usuarioLogueadoActividad.id,
     },
     body: JSON.stringify(nuevaActividad),
   })

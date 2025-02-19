@@ -258,13 +258,15 @@
 
             <!-- Descripción -->
             <ion-item>
-              <ion-textarea
+              <ion-input
                 label="Tiempo"
                 label-placement="floating"
+                type="number"
                 id="txtTiempoActividad"
                 placeholder="Ingrese el tiempo de duración"
-              ></ion-textarea>
-              <ion-icon name="alarm-outline"></ion-icon>
+              >
+            </ion-input>
+            <ion-icon name="alarm-outline"></ion-icon>
             </ion-item>
 
             <!-- Fecha -->
@@ -274,8 +276,10 @@
                 label-placement="floating"
                 type="date"
                 id="txtFechaActividad"
-              ></ion-input>
-              <ion-icon name="calendar-outline"></ion-icon>
+                clear-input="true"
+              >              
+            </ion-input>
+            <ion-icon name="calendar-outline"></ion-icon>
             </ion-item>
           </ion-list>
 

@@ -28,20 +28,21 @@ class Usuario {
   }
 }
 
-class RegistrarActividad {
-  id;
-  titulo;
-  usuario;
+class RegistrarActividad {  
+  idActividad;
+  idUsuario
   tiempo;
   fecha;
+  titulo; 
 
   static parse(data) {
     const registrarActividad = new RegistrarActividad();
-    if (data._id) {
-      registrarActividad.id = data._id;
+   
+    if (data.idActividad) {
+      registrarActividad.idActividad = data.idActividad;
     }
-    if (data.titulo) {
-      registrarActividad.titulo = data.titulo;
+    if (data.idUsuario) {
+      registrarActividad.idUsuario = data.idUsuario;
     }
     if (data.tiempo) {
       registrarActividad.tiempo = data.tiempo;
@@ -49,6 +50,9 @@ class RegistrarActividad {
     if (data.fecha) {
       registrarActividad.fecha = data.fecha;
     }
+    if (data.titulo) {
+      registrarActividad.titulo = data.titulo;
+    }        
     return registrarActividad;
   }
 }
@@ -72,7 +76,6 @@ class Actividad {
 
     return actividad;
   }
-
   getURLImagen() {
     return "https://movetrack.develotion.com/imgs/" + this.imagen + ".jpg";
   }
