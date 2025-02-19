@@ -89,7 +89,7 @@
               href="/verUsuarios"
               onclick="cerrarMenu()"
               id="btnMenuVerUsuarios"
-              >Usuarios</ion-item
+              >Mapa usuario</ion-item
             >
             <ion-item onclick="cerrarSesion()" id="btnMenuCerrarSesion"
               >Cerrar Sesion</ion-item
@@ -322,8 +322,16 @@
         </ion-content>
       </page-ver-actividades>
 
-      <!--Pantalla Ver usuarios-->
+      <!--Pantalla Ver usuario en mapa-->
       <page-ver-usuarios class="ion-page" id="verUsuarios">
+        <ion-header>
+          <ion-toolbar color="medium">
+            <ion-buttons slot="start">
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+            <ion-title>Mapa usuario</ion-title>
+          </ion-toolbar>
+        </ion-header>
         <ion-content>
           <div id="miMapa" style="height: 500px"></div>
         </ion-content>
