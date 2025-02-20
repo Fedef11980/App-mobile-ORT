@@ -1,19 +1,20 @@
 //Variables y constantes
 let usuarioLogueado = null;
-let actividades = null;
+let actividades = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
 let map = null;
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
-const SCREEN_LOGIN = document.querySelector("#login");
-const SCREEN_REG = document.querySelector("#regUsuario");
-const REG_ACTIVIDADES = document.querySelector("#regActividades");
+const MENU = document.querySelector("#menu");
 const NAV = document.querySelector("#nav");
 const ROUTER = document.querySelector("#ruteo");
-const MENU = document.querySelector("#menu");
-const VER_ACTIVIDADES = document.querySelector("#verActividades");
+const SCREEN_LOGIN = document.querySelector("#login");
+const SCREEN_REG_USUARIOS = document.querySelector("#regUsuario");
+const SCREEN_REG_ACTIVIDADES = document.querySelector("#regActividades");
+const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
+const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const VER_USUARIOS = document.querySelector("#verUsuarios");
 
 //Inicialización del sistema
@@ -40,13 +41,15 @@ function subscripcionEventos() {
     .querySelector("#btnRegistroUsuario")
     .addEventListener("click", btnRegistroUsuarioHandler);
   //Mostrar Actividades
-  document
-    .querySelector("#btnVerActividades")
-    .addEventListener("click", btnMostrarActividades);
-
+  //document.querySelector("#btnVerActividades").addEventListener("click", btnMostrarActividades);
+  //Registrar Actividad
   document
     .querySelector("#btnRegistrarActividad")
     .addEventListener("click", registrarActividad);
+  //Detalle Actividad
+  document
+    .querySelector("#btnDetalleActividadVolver")
+    .addEventListener("click", btnDetalleActividadVolverHandler);
 }
 
 function cerrarMenu() {
@@ -62,16 +65,19 @@ function navegar(evt) {
       verificarInicio();
       break;
     case "/login":
-      mostrarLogin();
+      mostrarPantallaLogin();
       break;
     case "/regUsuario":
-      mostrarRegistroUsuario();
+      mostrarPantallaRegistroUsuario();
       break;
     case "/regActividades":
-      mostrarRegistroActividades();
+      mostrarPantallaRegistroActividades();
       break;
     case "/verActividades":
-      mostrarVerActividades();
+      mostrarPantallaActividades();
+      break;
+    case "/verDetalle":
+      mostrarPantallaDetalleActividad();
       break;
     case "/verUsuarios":
       mostrarMapaUsuarios();
@@ -79,57 +85,31 @@ function navegar(evt) {
   }
 }
 
-function verificarInicio() {
-  if (usuarioLogueado) {
-    NAV.setRoot("page-actividades");
-    NAV.popToRoot();
-  } else {
-    NAV.setRoot("page-login");
-    NAV.popToRoot();
-  }
-}
-
-function inicializarMapa() {
-  if (!map) {
-    map = L.map("miMapa").setView([51.505, -0.09], 13);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-    L.marker([51.5, -0.09]).addTo(map).bindPopup("Hola!").openPopup();
-  }
-}
-
-function mostrarMapaUsuarios() {
-  ocultarPantallas();
-  inicializarMapa();
-  VER_USUARIOS.style.display = "block";
-}
-
-function mostrarLogin() {
+//Funciones de pantallas
+function mostrarPantallaLogin() {
   ocultarPantallas();
   SCREEN_LOGIN.style.display = "block";
 }
 
-function mostrarRegistroUsuario() {
+function mostrarPantallaRegistroUsuario() {
   ocultarPantallas();
-  SCREEN_REG.style.display = "block";
+  SCREEN_REG_USUARIOS.style.display = "block";
 }
 
-function mostrarRegistroActividades() {
+function mostrarPantallaRegistroActividades() {
   ocultarPantallas();
-  REG_ACTIVIDADES.style.display = "block";
+  SCREEN_REG_ACTIVIDADES.style.display = "block";
 }
 
-function mostrarVerActividades() {
+function mostrarPantallaActividades() {
   ocultarPantallas();
-  VER_ACTIVIDADES.style.display = "block";
+  cargarYListarActividades();
+  SCREEN_VER_ACTIVIDADES.style.display = "block";
 }
 
-function ocultarPantallas() {
-  HOME.style.display = "none";
-  SCREEN_LOGIN.style.display = "none";
-  SCREEN_REG.style.display = "none";
-  REG_ACTIVIDADES.style.display = "none";
-  VER_ACTIVIDADES.style.display = "none";
-  VER_USUARIOS.style.display = "none";
+function mostrarPantallaDetalleActividad() {
+  ocultarPantallas();
+  SCREEN_DETALLE.style.display = "block";
 }
 
 function actualizarMenu() {
@@ -151,12 +131,51 @@ function actualizarMenu() {
   }
 }
 
+function verificarInicio() {
+  if (usuarioLogueado) {
+    NAV.setRoot("page-verActividades");
+    NAV.popToRoot();
+  } else {
+    NAV.setRoot("page-login");
+    NAV.popToRoot();
+  }
+}
+
+function ocultarPantallas() {
+  HOME.style.display = "none";
+  SCREEN_LOGIN.style.display = "none";
+  SCREEN_REG_USUARIOS.style.display = "none";
+  SCREEN_REG_ACTIVIDADES.style.display = "none";
+  SCREEN_VER_ACTIVIDADES.style.display = "none";
+  VER_USUARIOS.style.display = "none";
+  SCREEN_DETALLE.style.display = "none";
+}
+
 function cerrarSesion() {
   cerrarMenu();
   usuarioLogueado = null;
   localStorage.clear();
   NAV.setRoot("page-login");
   NAV.popToRoot();
+}
+
+//Mapas
+function mostrarMapaUsuarios() {
+  ocultarPantallas();
+  inicializarMapa();
+  VER_USUARIOS.style.display = "block";
+}
+
+function inicializarMapa() {
+  if (!map) {
+    map = L.map("miMapa").setView([51.505, -0.09], 13);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+    L.marker([51.5, -0.09]).addTo(map).bindPopup("Hola!").openPopup();
+  }
+}
+
+function btnDetalleActividadVolverHandler() {
+  NAV.pop();
 }
 
 /*function actualizarUI() {
@@ -252,7 +271,7 @@ function btnLoginSesionHandler() {
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
           ); //Queda en el localSorage el UsuarioLogueadoAPP
-          NAV.setRoot("page-actividades");
+          NAV.setRoot("page-verActividades");
           NAV.popToRoot();
         } else if (respuestaBody.mensaje)
           document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
@@ -267,32 +286,36 @@ function btnLoginSesionHandler() {
   }
 }
 
-function btnMostrarActividades() {
+function cargarYListarActividades() {
+  actividades = [];
+  document.querySelector("#divAct").innerHTML = "";
+  const usuarioLogueadoVerActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
+  console.log("API Key:", usuarioLogueadoVerActividad?.apiKey);
+  console.log("ID Usuario:", usuarioLogueadoVerActividad?.id);
   const urlAPI = apiBaseURL + "actividades.php";
-  console.log(usuarioLogueado);
 
   fetch(urlAPI, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      apikey: usuarioLogueado.apiKey,
-      iduser: usuarioLogueado.id,
+      apikey: usuarioLogueadoVerActividad.apiKey,
+      iduser: usuarioLogueadoVerActividad.id,
     },
   })
     .then((respuestaAPI) => {
       if (respuestaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-      else {
-        return respuestaAPI.json();
-      }
+      else return respuestaAPI.json();
     })
     .then((respuestaBody) => {
       if (respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      } else if (respuestaBody?.data?.length > 0) {
-        respuestaBody.data.forEach((a) => {
+      } else if (respuestaBody.actividades.length > 0) {
+        respuestaBody.actividades.forEach((a) => {
           actividades.push(Actividad.parse(a));
         });
-        completarTablaActividades();
+        listarRegistros();
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
@@ -301,50 +324,69 @@ function btnMostrarActividades() {
     .catch((mensaje) => console.log(mensaje));
 }
 
-function completarTablaActividades() {
-  if (actividades.length === 0) {
-    listadoAct = "No se encontraron actividades.";
-  } else {
-    let listadoAct = "<ion-list>";
-    listadoAct += `
-              <ion-item class="ion-item-producto" producto-id="${a.id}">
-                  <ion-thumbnail slot="start">
-                      <img src="${a.getURLImagen()}" width="100"/>
-                  </ion-thumbnail>
-                  <ion-label>
-                      <h2>${a.nombre}</h2>
-  
-                  </ion-label>
+function listarRegistros() {
+  let listadoDeRegistros = "<ion-list>";
+  actividades.forEach((a) => {
+    console.log(a.getURLImagen());
+    if (actividades.length === 0) {
+      listadoDeRegistros = `<p>No se encontraron actividades.</p>`;
+    } else {
+      listadoDeRegistros += `
+                 <ion-item class="ion-item-producto">
+                <ion-thumbnail slot="start">
+                    <img src="${a.getURLImagen()}" width="100"/>
+                </ion-thumbnail>
+                <ion-label>                    
+                    <h2>${a.nombre}</h2>                    
+                </ion-label>               
+                <ion-icon name="close-sharp" actividad-id="${a.id}"></ion-icon>
+               
+                  </ion-item>
                   
-              </ion-item>
-          `;
-
-    listadoAct += "</ion-list>";
-
-    document.querySelector("#divAct").innerHTML = listadoAct;
+                  `;
+    }
+  });
+  listadoDeRegistros += "</ion-list>";
+  document.querySelector("#divAct").innerHTML = listadoDeRegistros;
+  const botonesTraidosHTML = document.querySelectorAll(
+    ".btnVerDetalleActividad"
+  );
+  if (botonesTraidosHTML?.length > 0) {
+    botonesTraidosHTML.forEach((b) => {
+      b.addEventListener("click", verDetalleActividad);
+    });
   }
 }
 
+function verDetalleActividad() {
+  const idActividadDetalle = this.getAttribute("actividad-id");
+}
+
 function registrarActividad() {
+  const usuarioLogueadoActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
   const titulo = document.querySelector("#txtNombreActividad").value;
   const tiempo = document.querySelector("#txtTiempoActividad").value;
   const fecha = document.querySelector("#txtFechaActividad").value;
-  console.log(usuarioLogueado);
-  const nuevaActividad = new RegistrarActividad();
-  nuevaActividad.titulo = titulo;
-  nuevaActividad.tiempo = tiempo;
-  nuevaActividad.fecha = fecha;
+  document.querySelector("#btnRegistrarActividad").innerHTML = "";
 
+  const nuevaActividad = {
+    idActividad: +1,
+    idUsuario: usuarioLogueadoActividad.id,
+    tiempo: tiempo,
+    fecha: fecha,
+    titulo: titulo,
+  };
   console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
-
   fetch(urlApi, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: usuarioLogueado.apiKey,
-      iduser: usuarioLogueado.id,
+      apikey: usuarioLogueadoActividad.apiKey,
+      iduser: usuarioLogueadoActividad.id,
     },
     body: JSON.stringify(nuevaActividad),
   })
@@ -376,7 +418,7 @@ async function mostrarToast(tipo, titulo, mensaje) {
   toast.header = titulo;
   toast.message = mensaje;
   toast.position = "bottom";
-  toast.duration = 2000;
+  toast.duration = 3000;
   if (tipo === "ERROR") {
     toast.color = "danger";
   } else if (tipo === "SUCCESS") {

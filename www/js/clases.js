@@ -5,8 +5,7 @@ class Usuario {
   apiKey;
   id;
 
-  static parse(data) {
-    // un metodo estatico tiene una ventaja
+  static parse(data) { // un metodo estatico tiene una ventaja
     const usuario = new Usuario();
 
     if (data?.usuario) {
@@ -28,20 +27,21 @@ class Usuario {
   }
 }
 
-class RegistrarActividad {
-  id;
-  titulo;
-  usuario;
+class RegistrarActividad {  
+  idActividad;
+  idUsuario
   tiempo;
   fecha;
+  titulo; 
 
   static parse(data) {
     const registrarActividad = new RegistrarActividad();
-    if (data._id) {
-      registrarActividad.id = data._id;
+   
+    if (data.idActividad) {
+      registrarActividad.idActividad = data.idActividad;
     }
-    if (data.titulo) {
-      registrarActividad.titulo = data.titulo;
+    if (data.idUsuario) {
+      registrarActividad.idUsuario = data.idUsuario;
     }
     if (data.tiempo) {
       registrarActividad.tiempo = data.tiempo;
@@ -49,6 +49,9 @@ class RegistrarActividad {
     if (data.fecha) {
       registrarActividad.fecha = data.fecha;
     }
+    if (data.titulo) {
+      registrarActividad.titulo = data.titulo;
+    }        
     return registrarActividad;
   }
 }
@@ -56,24 +59,22 @@ class RegistrarActividad {
 class Actividad {
   id;
   nombre;
-  imagen;
+  urlImagen;
 
   static parse(data) {
     const actividad = new Actividad();
-    if (data._id) {
-      actividad.id = data._id;
+    if (data.id) {
+      actividad.id = data.id;
     }
     if (data.nombre) {
       actividad.nombre = data.nombre;
     }
-    if (data.imagen) {
-      actividad.imagen = data.imagen;
+    if (data.urlImagen) {
+      actividad.urlImagen = data.urlImagen;
     }
-
     return actividad;
   }
-
   getURLImagen() {
-    return "https://movetrack.develotion.com/imgs/" + this.imagen + ".jpg";
+    return "https://movetrack.develotion.com/imgs/" + this.urlImagen + ".png";
   }
 }
