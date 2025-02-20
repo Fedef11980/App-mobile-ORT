@@ -162,8 +162,8 @@ function cerrarSesion() {
 //Mapas
 function mostrarMapaUsuarios() {
   ocultarPantallas();
-  inicializarMapa();
   VER_USUARIOS.style.display = "block";
+  inicializarMapa();
 }
 
 function inicializarMapa() {

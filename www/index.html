@@ -19,22 +19,45 @@
     ></script>
 
     <!--Ionic-->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"/>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
+    />
   </head>
   <body>
-    <ion-app><!--Componente de Ruteo-->      
+    <ion-app
+      ><!--Componente de Ruteo-->
       <ion-router id="ruteo" root="/">
         <ion-route url="/" component="page-home"></ion-route>
         <ion-route url="/login" component="page-login"></ion-route>
-        <ion-route url="/regUsuario" component="page-registroUsuario"></ion-route>
-        <ion-route url="/regActividades" component="page-actividades"></ion-route>
-        <ion-route url="/verActividades" component="page-verActividades"></ion-route>    
-        <ion-route url="/verDetalle" component="page-detalleActividad"      
-        <ion-route url="/verUsuarios" component="page-verUsuarios"></ion-route>        
+        <ion-route
+          url="/regUsuario"
+          component="page-registroUsuario"
+        ></ion-route>
+        <ion-route
+          url="/regActividades"
+          component="page-actividades"
+        ></ion-route>
+        <ion-route
+          url="/verActividades"
+          component="page-verActividades"
+        ></ion-route>
+        <ion-route
+          url="/verDetalle"
+          component="page-detalleActividad"
+        ></ion-route>
+        <ion-route url="/verUsuarios" component="page-verUsuarios"></ion-route>
       </ion-router>
-      <ion-nav id="nav"></ion-nav> <!--Stack de navegación-->
+      <ion-nav id="nav"></ion-nav>
+      <!--Stack de navegación-->
 
       <!--Menu-->
       <ion-menu content-id="main" id="menu">
@@ -45,12 +68,36 @@
         </ion-header>
         <ion-content class="ion-padding">
           <ion-list>
-            <ion-item href="/login" onclick="cerrarMenu()" id="btnMenuLogin" >Login</ion-item>
-            <ion-item href="/regUsuario" onclick="cerrarMenu()" id="btnMenuRegistro">Registro de usuario</ion-item>
-            <ion-item href="/regActividades" onclick="cerrarMenu()" id="btnMenuRegActividades">Registro de Actividades</ion-item>
-            <ion-item href="/verActividades" onclick="cerrarMenu()" id="btnMenuVerActividades">Ver Actividades</ion-item>
-            <ion-item href="/verUsuarios" onclick="cerrarMenu()" id="btnMenuVerUsuarios">Mapa de Usuarios</ion-item>
-            <ion-item onclick="cerrarSesion()" id="btnMenuCerrarSesion">Cerrar Sesion</ion-item>
+            <ion-item href="/login" onclick="cerrarMenu()" id="btnMenuLogin"
+              >Login</ion-item
+            >
+            <ion-item
+              href="/regUsuario"
+              onclick="cerrarMenu()"
+              id="btnMenuRegistro"
+              >Registro de usuario</ion-item
+            >
+            <ion-item
+              href="/regActividades"
+              onclick="cerrarMenu()"
+              id="btnMenuRegActividades"
+              >Registro de Actividades</ion-item
+            >
+            <ion-item
+              href="/verActividades"
+              onclick="cerrarMenu()"
+              id="btnMenuVerActividades"
+              >Ver Actividades</ion-item
+            >
+            <ion-item
+              href="/verUsuarios"
+              onclick="cerrarMenu()"
+              id="btnMenuVerUsuarios"
+              >Mapa de Usuarios</ion-item
+            >
+            <ion-item onclick="cerrarSesion()" id="btnMenuCerrarSesion"
+              >Cerrar Sesion</ion-item
+            >
           </ion-list>
         </ion-content>
       </ion-menu>
@@ -103,7 +150,8 @@
           <!--boton-->
           <ion-grid>
             <ion-row class="ion-justify-content-center">
-              <ion-col size="auto"><br><br><br>
+              <ion-col size="auto"
+                ><br /><br /><br />
                 <ion-button shape="round" color="success" id="btnLoginUsuario"
                   >Ingresar</ion-button
                 >
@@ -222,8 +270,8 @@
                 id="txtTiempoActividad"
                 placeholder="Ingrese el tiempo de duración"
               >
-            </ion-input>
-            <ion-icon name="alarm-outline"></ion-icon>
+              </ion-input>
+              <ion-icon name="alarm-outline"></ion-icon>
             </ion-item>
 
             <!-- Fecha -->
@@ -234,9 +282,9 @@
                 type="date"
                 id="txtFechaActividad"
                 clear-input="true"
-              >              
-            </ion-input>
-            <ion-icon name="calendar-outline"></ion-icon>
+              >
+              </ion-input>
+              <ion-icon name="calendar-outline"></ion-icon>
             </ion-item>
           </ion-list>
 
@@ -249,7 +297,7 @@
                   color="primary"
                   id="btnRegistrarActividad"
                 >
-                <strong> Registrar Actividad</strong>
+                  <strong> Registrar Actividad</strong>
                 </ion-button>
               </ion-col>
             </ion-row>
@@ -268,27 +316,35 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-searchbar id="txtProductosFiltro" placeholder="Buscar"></ion-searchbar>             
+          <ion-searchbar
+            id="txtProductosFiltro"
+            placeholder="Buscar"
+          ></ion-searchbar>
           <div id="divAct"></div>
-          <br><br><br>
+          <br /><br /><br />
         </ion-content>
       </page-verActividades>
 
       <page-detalleActividad class="ion-page" id="verDetalleActividad">
         <ion-header>
-            <ion-toolbar color="warning">
+          <ion-toolbar color="warning">
             <ion-buttons slot="start">
-                <ion-menu-button></ion-menu-button>
+              <ion-menu-button></ion-menu-button>
             </ion-buttons>
             <ion-title>Detalle de producto</ion-title>
-            </ion-toolbar>
+          </ion-toolbar>
         </ion-header>
         <ion-content>
-            <div id="divDetalleProducto"></div>
-            <ion-button id="btnDetalleActividadVolver" expand="block" color="medium">Regresar</ion-button>
-            <br><br><br>
+          <div id="divDetalleProducto"></div>
+          <ion-button
+            id="btnDetalleActividadVolver"
+            expand="block"
+            color="medium"
+            >Regresar</ion-button
+          >
+          <br /><br /><br />
         </ion-content>
-    </page-detalleActividad>
+      </page-detalleActividad>
 
       <!--Pantalla Ver usuario en mapa-->
       <page-verUsuarios class="ion-page" id="verUsuarios">
