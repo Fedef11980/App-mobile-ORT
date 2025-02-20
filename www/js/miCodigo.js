@@ -329,7 +329,7 @@ function registrarActividad() {
   const titulo = document.querySelector("#txtNombreActividad").value;
   const tiempo = document.querySelector("#txtTiempoActividad").value;
   const fecha = document.querySelector("#txtFechaActividad").value;
-
+  console.log(usuarioLogueado);
   const nuevaActividad = new RegistrarActividad();
   nuevaActividad.titulo = titulo;
   nuevaActividad.tiempo = tiempo;
