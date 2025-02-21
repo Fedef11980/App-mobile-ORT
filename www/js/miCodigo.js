@@ -16,6 +16,7 @@ const SCREEN_REG_ACTIVIDADES = document.querySelector("#regActividades");
 const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
 const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const VER_USUARIOS = document.querySelector("#verUsuarios");
+const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
 
 //Inicialización del sistema
 inicializar();
@@ -33,23 +34,15 @@ function subscripcionEventos() {
   //Routeo
   ROUTER.addEventListener("ionRouteDidChange", navegar);
   //Login
-  document
-    .querySelector("#btnLoginUsuario")
-    .addEventListener("click", btnLoginSesionHandler);
+  document.querySelector("#btnLoginUsuario").addEventListener("click", btnLoginSesionHandler);
   //RegistroUsuario
-  document
-    .querySelector("#btnRegistroUsuario")
-    .addEventListener("click", btnRegistroUsuarioHandler);
-  //Mostrar Actividades
-  //document.querySelector("#btnVerActividades").addEventListener("click", btnMostrarActividades);
+  document.querySelector("#btnRegistroUsuario").addEventListener("click", btnRegistroUsuarioHandler);
+    // Actividades
+ COMBO_FILTRO_ACTIVIDADES.addEventListener("ionChange", comboActividadesChangeHandler);
   //Registrar Actividad
-  document
-    .querySelector("#btnRegistrarActividad")
-    .addEventListener("click", registrarActividad);
+  document.querySelector("#btnRegistrarActividad").addEventListener("click", registrarActividad);
   //Detalle Actividad
-  document
-    .querySelector("#btnDetalleActividadVolver")
-    .addEventListener("click", btnDetalleActividadVolverHandler);
+  document.querySelector("#btnDetalleActividadVolver").addEventListener("click", btnDetalleActividadVolverHandler);
 }
 
 function cerrarMenu() {
@@ -98,12 +91,13 @@ function mostrarPantallaRegistroUsuario() {
 
 function mostrarPantallaRegistroActividades() {
   ocultarPantallas();
+  //cargarSelectorActividades(comboParaActualizar);
   SCREEN_REG_ACTIVIDADES.style.display = "block";
 }
 
 function mostrarPantallaActividades() {
   ocultarPantallas();
-  cargarYListarActividades();
+  cargarYListarActividades(COMBO_FILTRO_ACTIVIDADES);
   SCREEN_VER_ACTIVIDADES.style.display = "block";
 }
 
@@ -286,14 +280,14 @@ function btnLoginSesionHandler() {
   }
 }
 
+//Ver Registros de Actividades
 function cargarYListarActividades() {
   actividades = [];
   document.querySelector("#divAct").innerHTML = "";
   const usuarioLogueadoVerActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
-  console.log("API Key:", usuarioLogueadoVerActividad?.apiKey);
-  console.log("ID Usuario:", usuarioLogueadoVerActividad?.id);
+
   const urlAPI = apiBaseURL + "actividades.php";
 
   fetch(urlAPI, {
@@ -315,11 +309,10 @@ function cargarYListarActividades() {
         respuestaBody.actividades.forEach((a) => {
           actividades.push(Actividad.parse(a));
         });
-        listarRegistros();
+        listarRegistros()
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-      }
-      console.log(respuestaBody);
+      }      
     })
     .catch((mensaje) => console.log(mensaje));
 }
@@ -338,11 +331,12 @@ function listarRegistros() {
                 </ion-thumbnail>
                 <ion-label>                    
                     <h2>${a.nombre}</h2>                    
-                </ion-label>               
-                <ion-icon name="close-sharp" actividad-id="${a.id}"></ion-icon>
-               
-                  </ion-item>
-                  
+                </ion-label>
+                <ion-icon name="search-sharp" style="padding:15px;" ></ion-icon>               
+                <ion-icon name="trash-sharp" actividad-id="${
+                  a.id
+                }"></ion-icon>              
+                  </ion-item>                  
                   `;
     }
   });
@@ -362,11 +356,76 @@ function verDetalleActividad() {
   const idActividadDetalle = this.getAttribute("actividad-id");
 }
 
-function registrarActividad() {
-  const usuarioLogueadoActividad = JSON.parse(
+//TODO listado de actividades
+function cargarSelectorActividades(comboParaActualizar) {
+  actividades = [];
+  const usuarioLogueadoVerActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
-  const titulo = document.querySelector("#txtNombreActividad").value;
+  const urlAPI = apiBaseURL + "actividades.php";
+  fetch(urlAPI, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: usuarioLogueadoVerActividad.apiKey,
+      iduser: usuarioLogueadoVerActividad.id,
+    },
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+      else return respuestaAPI.json();
+    })
+    .then((respuestaBody) => {
+      console.log(respuestaBody);
+      
+      if (respuestaBody.mensaje) {
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      } else if (respuestaBody.actividades.length > 0) {
+        respuestaBody.actividades.forEach((a) => {
+          actividades.push(Actividad.parse(a));
+        });
+        actualizarComboActividades(comboParaActualizar)
+      } else {
+        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+      }
+      console.log(respuestaBody);
+    })
+    .catch((mensaje) => console.log(mensaje));
+}
+
+function actualizarComboActividades(comboParaActualizar) {
+  comboParaActualizar.innerHTML = "";
+  for (let i = 0; i < actividades.length; i++) {
+      const actividadActual = actividades[i];
+      comboParaActualizar.innerHTML += `<ion-select-option value="${actividadActual.id}">${actividadActual.nombre}</ion-select-option>`;
+  }
+}
+
+function comboActividadesChangeHandler(evt) {
+  const acti = obtenerActividadPorId(evt.detail.value);
+  console.log(acti);
+  //const nombre = acti.nombre;
+  
+}
+
+function obtenerActividadPorId(id) {
+  let act = null;
+  let i = 0;
+  while (!act && i < actividades.length) {
+    const actividadesActual = actividades[i];    
+    if (actividadesActual.id === id) {
+      act = actividadesActual;
+    }    
+    i++;    
+  }   
+  return act;
+}
+
+
+
+function registrarActividad() {
+  cargarSelectorActividades(comboParaActualizar)
+  const usuarioLogueadoActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
   const tiempo = document.querySelector("#txtTiempoActividad").value;
   const fecha = document.querySelector("#txtFechaActividad").value;
   document.querySelector("#btnRegistrarActividad").innerHTML = "";

@@ -250,16 +250,12 @@
         <ion-content class="ion-padding">
           <ion-list>
             <!-- Nombre de la actividad -->
-            <ion-item>
-              <ion-input
-                label="Nombre de la actividad"
-                label-placement="floating"
-                clear-input="true"
-                id="txtNombreActividad"
-                placeholder="Ingrese el nombre"
-              ></ion-input>
-              <ion-icon name="create-outline"></ion-icon>
-            </ion-item>
+            <ion-list>
+              <ion-item>
+                <ion-select placeholder="Seleccionar actividad" id="selectorActividad"></ion-select>
+                <ion-select-option value=""></ion-select-option>
+              </ion-item>
+            </ion-list>           
 
             <!-- Descripción -->
             <ion-item>

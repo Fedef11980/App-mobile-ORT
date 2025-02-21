@@ -59,7 +59,7 @@ class RegistrarActividad {
 class Actividad {
   id;
   nombre;
-  urlImagen;
+  imagen;
 
   static parse(data) {
     const actividad = new Actividad();
@@ -69,12 +69,12 @@ class Actividad {
     if (data.nombre) {
       actividad.nombre = data.nombre;
     }
-    if (data.urlImagen) {
-      actividad.urlImagen = data.urlImagen;
+    if (data.imagen) {
+      actividad.imagen = data.imagen;
     }
     return actividad;
   }
   getURLImagen() {
-    return "https://movetrack.develotion.com/imgs/" + this.urlImagen + ".png";
+    return "https://movetrack.develotion.com/imgs/" + this.imagen + ".png";
   }
 }
