@@ -3,6 +3,7 @@ let usuarioLogueado = null;
 let actividades = [];
 let actividadVisualizada = [];
 let actividadesFiltradas = [];
+let paises = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -20,6 +21,7 @@ const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const VER_USUARIOS = document.querySelector("#verUsuarios");
 const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
 const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtProductosFiltro");
+const PAISES = document.querySelector("#selectorPaís");
 
 //Inicialización del sistema
 inicializar();
@@ -62,6 +64,9 @@ function subscripcionEventos() {
   document
     .querySelector("#btnDetalleActividadVolver")
     .addEventListener("click", btnDetalleActividadVolverHandler);
+
+  //PAISES
+  PAISES.addEventListener("ionChange", comboPaisesChangeHandler);
 }
 
 function cerrarMenu() {
@@ -106,6 +111,7 @@ function mostrarPantallaLogin() {
 function mostrarPantallaRegistroUsuario() {
   ocultarPantallas();
   SCREEN_REG_USUARIOS.style.display = "block";
+  ObtenerListadoPaises(PAISES);
 }
 
 function mostrarPantallaRegistroActividades() {
@@ -289,6 +295,52 @@ function btnLoginSesionHandler() {
       "Todos los campos son obligatorios"
     );
   }
+}
+
+function ObtenerListadoPaises(comboParaActualizar) {
+  paises = [];
+  const urlAPI = apiBaseURL + "paises.php";
+
+  fetch(urlAPI, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) {
+        cerrarSesionPorFaltaDeToken();
+      } else return respuestaAPI.json();
+    })
+    .then((respuestaBody) => {
+      if (respuestaBody.mensaje) {
+        console.log(respuestaBody);
+
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      } else if (respuestaBody?.paises?.length > 0) {
+        respuestaBody.paises.forEach((p) => {
+          paises.push(Pais.parse(p));
+        });
+        actualizarComboPaises(comboParaActualizar);
+      } else {
+        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+      }
+    })
+    .catch((mensaje) => console.log(mensaje));
+}
+
+function actualizarComboPaises(comboParaActualizar) {
+  comboParaActualizar.innerHTML = "";
+  for (let i = 0; i < paises.length; i++) {
+    const paisActual = paises[i];
+    comboParaActualizar.innerHTML += `<ion-select-option value="${paisActual.id}">${paisActual.name}</ion-select-option>`;
+  }
+}
+
+function comboPaisesChangeHandler(evt) {
+  const pais = obtenerPaisPorId(evt.detail.value);
+  const nombre = pais.nombre;
+  console.log(nombre);
 }
 
 //Ver Registros de Actividades
