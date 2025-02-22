@@ -419,6 +419,34 @@ function listarRegistros() {
   }
 }
 
+//TODO: falta terminar
+function eliminarActividad() {
+  const usuarioLogueadoEliminarActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
+
+  if (idActividad) {
+    const URL = apiBaseURL + "/actividades.php";
+
+    fetch(URL, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: usuarioLogueadoEliminarActividad.apiKey,
+        iduser: usuarioLogueadoEliminarActividad.id,
+        idRegistro: idActividad,
+      },
+    })
+      .then((respuestaDeLaAPI) => {
+        if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+        return respuestaDeLaAPI.json();
+      })
+      .then((bodyDeLaRespuesta) => {});
+  } else {
+    mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+  }
+}
+
 //acceder a pantalla de detalle de la actividad
 function verDetalleActividad() {
   const idActividadDetalle = this.getAttribute("detalle-id");
@@ -527,11 +555,7 @@ function completarTablaActividades() {
                 <img src="${a.getURLImagen()}" width="100"/>
             </ion-thumbnail>
             <ion-label>
-                <h2>${a.nombre}</h2>
-                <ion-badge color="${
-                  a.status === "en stock" ? "success" : "danger"
-                }">${a.status}</ion-badge>
-                </h4>
+                <h2>${a.nombre}</h2>                
             </ion-label>              
         </ion-item>
       `;
@@ -539,16 +563,10 @@ function completarTablaActividades() {
   listadoActividades += "</ion-list>";
 
   if (actividadesFiltradas.length === 0) {
-    listadoProductos = "No se encontraron productos.";
+    listadoActividades = "No se encontraron actividades.";
   }
 
   document.querySelector("#divAct").innerHTML = listadoActividades;
-
-  const tagsProductos = document.querySelectorAll(".ion-item-producto");
-
-  tagsProductos.forEach((tp) => {
-    tp.addEventListener("click", tagProductoClickHandler);
-  });
 }
 
 function inputFiltroProductosChangeHandler() {
@@ -618,16 +636,25 @@ function registrarActividad() {
   const usuarioLogueadoActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
+
+  const actividadSeleccionada =
+    document.querySelector("#selectorActividad").value;
   const tiempo = document.querySelector("#txtTiempoActividad").value;
   const fecha = document.querySelector("#txtFechaActividad").value;
-  document.querySelector("#btnRegistrarActividad").innerHTML = "";
+
+  if (!actividadSeleccionada || !tiempo || !fecha) {
+    mostrarToast("ERROR", "Error", "Todos los campos son obligatorios.");
+    return;
+  }
 
   const nuevaActividad = {
-    idActividad: +1,
+    idActividad: actividadSeleccionada,
     idUsuario: usuarioLogueadoActividad.id,
     tiempo: tiempo,
     fecha: fecha,
   };
+
+  console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
   fetch(urlApi, {
@@ -647,15 +674,12 @@ function registrarActividad() {
       return respuestaAPI.json();
     })
     .then((respuestaBody) => {
+      console.log("Respuesta API:", respuestaBody);
       if (respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      } else if (respuestaBody?.data?.length > 0) {
-        respuestaBody.data.forEach((a) => {
-          actividades.push(Actividad.parse(a));
-        });
-        completarTablaActividades();
       } else {
-        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+        actividades.push(nuevaActividad);
+        mostrarToast("SUCCESS", "Éxito", "Actividad registrada correctamente.");
       }
     })
     .catch((error) => console.log("Error:", error));
@@ -705,7 +729,7 @@ function actualizarComboActividades(comboParaActualizar) {
 
 function comboActividadesChangeHandler(evt) {
   const acti = obtenerActividadPorId(evt.detail.value);
-  console.log(acti);
+  return acti;
   //const nombre = acti.nombre;
 }
 
