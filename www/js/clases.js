@@ -5,7 +5,8 @@ class Usuario {
   apiKey;
   id;
 
-  static parse(data) { // un metodo estatico tiene una ventaja
+  static parse(data) {
+    // un metodo estatico tiene una ventaja
     const usuario = new Usuario();
 
     if (data?.usuario) {
@@ -27,16 +28,15 @@ class Usuario {
   }
 }
 
-class RegistrarActividad {  
+class RegistrarActividad {
   idActividad;
-  idUsuario
+  idUsuario;
   tiempo;
   fecha;
-  titulo; 
 
   static parse(data) {
     const registrarActividad = new RegistrarActividad();
-   
+
     if (data.idActividad) {
       registrarActividad.idActividad = data.idActividad;
     }
@@ -49,9 +49,7 @@ class RegistrarActividad {
     if (data.fecha) {
       registrarActividad.fecha = data.fecha;
     }
-    if (data.titulo) {
-      registrarActividad.titulo = data.titulo;
-    }        
+
     return registrarActividad;
   }
 }

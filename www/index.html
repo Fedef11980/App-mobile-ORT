@@ -78,16 +78,16 @@
               >Registro de usuario</ion-item
             >
             <ion-item
-              href="/regActividades"
-              onclick="cerrarMenu()"
-              id="btnMenuRegActividades"
-              >Registro de Actividades</ion-item
-            >
-            <ion-item
               href="/verActividades"
               onclick="cerrarMenu()"
               id="btnMenuVerActividades"
               >Ver Actividades</ion-item
+            >
+            <ion-item
+              href="/regActividades"
+              onclick="cerrarMenu()"
+              id="btnMenuRegActividades"
+              >Registro de Actividades</ion-item
             >
             <ion-item
               href="/verUsuarios"
@@ -252,10 +252,13 @@
             <!-- Nombre de la actividad -->
             <ion-list>
               <ion-item>
-                <ion-select placeholder="Seleccionar actividad" id="selectorActividad"></ion-select>
+                <ion-select
+                  placeholder="Seleccionar actividad"
+                  id="selectorActividad"
+                ></ion-select>
                 <ion-select-option value=""></ion-select-option>
               </ion-item>
-            </ion-list>           
+            </ion-list>
 
             <!-- Descripción -->
             <ion-item>
