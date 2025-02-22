@@ -66,7 +66,7 @@ function subscripcionEventos() {
     .addEventListener("click", btnDetalleActividadVolverHandler);
 
   //PAISES
-  PAISES.addEventListener("ionChange", comboPaisesChangeHandler);
+  PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 }
 
 function cerrarMenu() {
@@ -202,7 +202,7 @@ function btnDetalleActividadVolverHandler() {
 function btnRegistroUsuarioHandler() {
   let usuarioIngresado = document.querySelector("#txtNombreRegistro").value;
   let passwordIngresado = document.querySelector("#txtPasswoedIngresado").value;
-  let paisIngresado = document.querySelector("#txtPaisIngresado").value;
+  let paisIngresado = document.querySelector("#selectorPaís").value;
 
   document.querySelector("#pRegistro").innerHTML = "";
 
@@ -213,8 +213,9 @@ function btnRegistroUsuarioHandler() {
       //variables con los datos de los usuarios
       usuario: usuarioIngresado,
       password: passwordIngresado,
-      pais: paisIngresado,
+      idPais: paisIngresado,
     };
+
     fetch(urlAPI, {
       //llamada http
       method: "POST",
@@ -314,8 +315,6 @@ function ObtenerListadoPaises(comboParaActualizar) {
     })
     .then((respuestaBody) => {
       if (respuestaBody.mensaje) {
-        console.log(respuestaBody);
-
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.paises?.length > 0) {
         respuestaBody.paises.forEach((p) => {
@@ -366,8 +365,6 @@ function cargarYListarActividades() {
     })
     .then((respuestaBody) => {
       if (respuestaBody.mensaje) {
-        console.log(respuestaBody);
-
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody.actividades.length > 0) {
         respuestaBody.actividades.forEach((a) => {
@@ -425,7 +422,6 @@ function listarRegistros() {
 //acceder a pantalla de detalle de la actividad
 function verDetalleActividad() {
   const idActividadDetalle = this.getAttribute("detalle-id");
-  console.log("ID de actividad seleccionada:", idActividadDetalle);
 
   const usuarioLogueadoVerActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
@@ -434,7 +430,6 @@ function verDetalleActividad() {
 
   if (idActividadDetalle) {
     const URLCompleta = urlAPI + "/actividades.php";
-    console.log("URL de la API:", URLCompleta);
 
     fetch(URLCompleta, {
       method: "GET",
@@ -445,13 +440,10 @@ function verDetalleActividad() {
       },
     })
       .then((respuestaDeLaAPI) => {
-        console.log("Código de respuesta:", respuestaDeLaAPI.status);
         if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
         return respuestaDeLaAPI.json();
       })
       .then((bodyDeLaRespuesta) => {
-        console.log("Respuesta de la API:", bodyDeLaRespuesta);
-
         let actividadSeleccionada = null;
 
         if (
@@ -465,7 +457,6 @@ function verDetalleActividad() {
           });
 
           if (actividadSeleccionada) {
-            console.log("Actividad encontrada:", actividadSeleccionada);
             actividadVisualizada = Actividad.parse(actividadSeleccionada);
             completarPantallaDetalleActividad();
             NAV.push("page-detalleActividad");
@@ -506,8 +497,6 @@ function generarNumero() {
 function completarPantallaDetalleActividad() {
   let detalleHTML = "";
   if (actividadVisualizada) {
-    console.log("actividad", actividadVisualizada);
-
     detalleHTML += `
           <ion-card>
             <img alt="Imagen de ${
@@ -639,7 +628,6 @@ function registrarActividad() {
     tiempo: tiempo,
     fecha: fecha,
   };
-  console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
   fetch(urlApi, {
@@ -669,7 +657,6 @@ function registrarActividad() {
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
-      console.log(respuestaBody);
     })
     .catch((error) => console.log("Error:", error));
 }
@@ -704,7 +691,6 @@ function cargarSelectorActividades(comboParaActualizar) {
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
-      console.log(respuestaBody);
     })
     .catch((mensaje) => console.log(mensaje));
 }
