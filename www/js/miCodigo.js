@@ -512,21 +512,25 @@ function inputFiltroProductosChangeHandler() {
 }
 
 function actualizarProductosFiltrados() {
-  const filtroIngresado = document.querySelector("#txtProductosFiltro").value.trim().toUpperCase();
+  const filtroIngresado = document
+    .querySelector("#txtProductosFiltro")
+    .value.trim()
+    .toUpperCase();
+    
   actividadesFiltradas = [];
-  if (filtroIngresado === '') {
+  if (filtroIngresado === "") {
     actividadesFiltradas = actividades;
   } else {
-      for (let i = 0; i < actividades.length; i++) {
-          const actividadActual = actividades[i];
-          for (let j = 0; j < actividadActual.length; j++) {
-              const etiquetaActual = actividadActual.etiquetas[j];
-              if (etiquetaActual.toUpperCase().includes(filtroIngresado)) {
-                actividadesFiltradas.push(actividadActual);
-                  break;
-              }
-          }
+    for (let i = 0; i < actividades.length; i++) {
+      const actividadActual = actividades[i];
+      for (let j = 0; j < actividadActual.length; j++) {
+        const etiquetaActual = actividadActual.etiquetas[j];
+        if (etiquetaActual.toUpperCase().includes(filtroIngresado)) {
+          actividadesFiltradas.push(actividadActual);
+          break;
+        }
       }
+    }
   }
 }
 
