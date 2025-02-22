@@ -110,8 +110,8 @@ function mostrarPantallaRegistroUsuario() {
 
 function mostrarPantallaRegistroActividades() {
   ocultarPantallas();
-  //cargarSelectorActividades(comboParaActualizar);
   SCREEN_REG_ACTIVIDADES.style.display = "block";
+  cargarSelectorActividades(COMBO_FILTRO_ACTIVIDADES);
 }
 
 function mostrarPantallaActividades() {
@@ -574,7 +574,6 @@ function actualizarProductosFiltrados() {
 
 //Registro de actividades
 function registrarActividad() {
-  cargarSelectorActividades(comboParaActualizar);
   const usuarioLogueadoActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
@@ -643,11 +642,9 @@ function cargarSelectorActividades(comboParaActualizar) {
       else return respuestaAPI.json();
     })
     .then((respuestaBody) => {
-      console.log(respuestaBody);
-
-      if (respuestaBody.mensaje) {
+      if (respuestaBody && respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      } else if (respuestaBody.actividades.length > 0) {
+      } else if (respuestaBody?.actividades?.length > 0) {
         respuestaBody.actividades.forEach((a) => {
           actividades.push(Actividad.parse(a));
         });
@@ -664,7 +661,7 @@ function actualizarComboActividades(comboParaActualizar) {
   comboParaActualizar.innerHTML = "";
   for (let i = 0; i < actividades.length; i++) {
     const actividadActual = actividades[i];
-    comboParaActualizar.innerHTML += `<ion-select-option actividad-id="${a.id}" value="${actividadActual.id}">${actividadActual.nombre}</ion-select-option>`;
+    comboParaActualizar.innerHTML += `<ion-select-option value="${actividadActual.id}">${actividadActual.nombre}</ion-select-option>`;
   }
 }
 
