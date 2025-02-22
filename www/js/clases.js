@@ -76,3 +76,31 @@ class Actividad {
     return "https://movetrack.develotion.com/imgs/" + this.imagen + ".png";
   }
 }
+
+class Pais {
+  id;
+  name;
+  currency;
+  latitude;
+  longitude;
+
+  static parse(data) {
+    const pais = new Pais();
+    if (data.id) {
+      pais.id = data.id;
+    }
+    if (data.name) {
+      pais.name = data.name;
+    }
+    if (data.currency) {
+      pais.currency = data.currency;
+    }
+    if (data.latitude) {
+      pais.latitude = data.latitude;
+    }
+    if (data.longitude) {
+      pais.longitude = data.longitude;
+    }
+    return pais;
+  }
+}
