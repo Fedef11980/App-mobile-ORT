@@ -2,6 +2,7 @@
 let usuarioLogueado = null;
 let actividades = [];
 let actividadVisualizada=[];
+let actividadesFiltradas = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -18,6 +19,7 @@ const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
 const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const VER_USUARIOS = document.querySelector("#verUsuarios");
 const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
+const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtProductosFiltro");
 
 //Inicialización del sistema
 inicializar();
@@ -42,6 +44,8 @@ function subscripcionEventos() {
  COMBO_FILTRO_ACTIVIDADES.addEventListener("ionChange", comboActividadesChangeHandler);
   //Registrar Actividad
   document.querySelector("#btnRegistrarActividad").addEventListener("click", registrarActividad);
+  //Search
+  INPUT_FILTRO_PRODUCTOS.addEventListener("ionChange", inputFiltroProductosChangeHandler);
   //Detalle Actividad
   document.querySelector("#btnDetalleActividadVolver").addEventListener("click", btnDetalleActividadVolverHandler);
 }
@@ -311,6 +315,7 @@ function cargarYListarActividades() {
     .catch((mensaje) => console.log(mensaje));
 }
 
+//lista de Ver Registro
 function listarRegistros() {
   let listadoDeRegistros = "<ion-list>";
   actividades.forEach((a) => {    
@@ -349,6 +354,7 @@ function listarRegistros() {
   }
 }
 
+//acceder a pantalla de detalle de la actividad
 function verDetalleActividad() {
   const idActividadDetalle = this.getAttribute("detalle-id");
   console.log("ID de actividad seleccionada:", idActividadDetalle);
@@ -388,7 +394,7 @@ function verDetalleActividad() {
           if (actividadSeleccionada) {
             console.log("Actividad encontrada:", actividadSeleccionada);
             actividadVisualizada = Actividad.parse(actividadSeleccionada);
-            completarPantallaDetalleProducto();
+            completarPantallaDetalleActividad();
             NAV.push("page-detalleActividad");
           } else {
             mostrarToast("ERROR", "Error", "No se encontró la actividad seleccionada.");
@@ -406,50 +412,31 @@ function verDetalleActividad() {
   }
 }
 
-function completarPantallaDetalleProducto() {
-  console.log("Hola");
-  
-  /*let detalleHTML = "";
+//pantalla del detalle de la actividad
+function completarPantallaDetalleActividad() {  
+  let detalleHTML = "";
   if (actividadVisualizada) {
-    let listadoEtiquetas = "";
-    actividadVisualizada.forEach((i) => {
-      listadoEtiquetas += `<ion-badge color="warning">${e}</ion-badge>`;
-      if (i !== actividadVisualizada.length - 1) {
-        listadoEtiquetas += " ";
-      }
-    });
+    console.log("actividad", actividadVisualizada);   
 
     detalleHTML += `
-            <ion-card>
-                <img alt="Imagen de ${
-                  actividadVisualizada.nombre
-                }}" src="${actividadVisualizada.getURLImagen()}" />
-                <ion-card-header>
-                    <span>${listadoEtiquetas}</span>
-                    <ion-card-title>${
-                      actividadVisualizada.nombre
-                    }</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                    <span>
-                        <ion-badge color="${
-                          actividadVisualizada.estado === "en stock"
-                            ? "success"
-                            : "danger"
-                        }">${actividadVisualizada.estado}</ion-badge>
-                    </span>
-                    <ion-card-subtitle>${actividadVisualizada.codigo} | $${
-                      actividadVisualizada.precio
-    }</ion-card-subtitle>
-                    <ion-card-subtitle>Puntaje: ${
-                      actividadVisualizada.puntaje
-                    }</ion-card-subtitle>
-                    ${actividadVisualizada.descripcion}
+          <ion-card>
+            <img alt="Imagen de ${actividadVisualizada.nombre}}" src="${actividadVisualizada.getURLImagen()}" />
+            <ion-card-header>                
+                <ion-card-title>${actividadVisualizada.nombre}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <span>
+                    <ion-badge color="${actividadVisualizada.estado === "en stock"? "success": "danger"}">${actividadVisualizada.estado}
+                    </ion-badge>
+                </span>
+                <ion-card-subtitle>${actividadVisualizada.codigo} | $${actividadVisualizada.precio}
+                </ion-card-subtitle>
+                <ion-card-subtitle>Cantidad de minutos: ${actividadVisualizada.puntaje}</ion-card-subtitle>${actividadVisualizada.descripcion}
                 </ion-card-content>
-            </ion-card>
+          </ion-card>
         `;
 
-    if (actividadVisualizada.estado === "en stock") {
+    if (actividadVisualizada.estado === "") {
       detalleHTML += `
             <ion-card color="medium">
                 <ion-card-header>
@@ -479,15 +466,104 @@ function completarPantallaDetalleProducto() {
     detalleHTML = "Ha ocurrido un error al cargar la información del producto.";
   }
 
-  document.querySelector("#divDetalleProducto").innerHTML = detalleHTML;
+  document.querySelector("#divDetalleAct").innerHTML = detalleHTML;
 
   if (actividadVisualizada && actividadVisualizada.estado === "en stock") {
     document.getElementById("txtDetalleProductoPedidoCantidad").addEventListener("ionChange", inputPedidoCantidadChangeHandler);
     const comboDetalleProductoPedidoSucursal = document.getElementById("selectDetalleProductoPedidoSucursal");
     cargarYListarSucursales(comboDetalleProductoPedidoSucursal);
     document.getElementById("btnDetalleProductoPedidoEnviarPedido").addEventListener("click", realizarActividad);
-  }*/
+  }
 }
+
+function completarTablaActividades() {
+  let listadoProductos = '<ion-list>';
+  actividadesFiltradas.forEach((a) => {   
+      listadoActividades += `
+        <ion-item class="ion-item-producto" producto-id="${a.id}">
+            <ion-thumbnail slot="start">
+                <img src="${a.getURLImagen()}" width="100"/>
+            </ion-thumbnail>
+            <ion-label>
+                <h2>${a.nombre}</h2>
+                <ion-badge color="${a.status === 'en stock'? 'success' : 'danger'}">${a.status}</ion-badge>
+                </h4>
+            </ion-label>              
+        </ion-item>
+      `;
+  });
+  listadoActividades += '</ion-list>'
+
+  if (actividadesFiltradas.length === 0) {
+      listadoProductos = "No se encontraron productos.";
+  }
+
+  document.querySelector("#divAct").innerHTML = listadoActividades;
+
+  const tagsProductos = document.querySelectorAll(".ion-item-producto");
+
+  tagsProductos.forEach((tp) => {tp.addEventListener('click', tagProductoClickHandler);
+  });
+}
+
+function inputFiltroProductosChangeHandler() {
+  actualizarProductosFiltrados();
+  completarTablaActividades();
+}
+
+function actualizarProductosFiltrados() {
+  const filtroIngresado = document.querySelector("#txtProductosFiltro").value.trim().toUpperCase();
+  actividadesFiltradas = [];
+  if (filtroIngresado === '') {
+    actividadesFiltradas = actividades;
+  } else {
+      for (let i = 0; i < actividades.length; i++) {
+          const actividadActual = actividades[i];
+          for (let j = 0; j < actividadActual.length; j++) {
+              const etiquetaActual = actividadActual.etiquetas[j];
+              if (etiquetaActual.toUpperCase().includes(filtroIngresado)) {
+                actividadesFiltradas.push(actividadActual);
+                  break;
+              }
+          }
+      }
+  }
+}
+
+/*function tagProductoClickHandler() {
+  const idProductoParaVerDetalle = this.getAttribute('producto-id');
+
+  if (idProductoParaVerDetalle) {
+      fetch(apiBaseURL + '/productos/' + idProductoParaVerDetalle, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'x-auth': usuarioLogueado.token
+          }
+      })
+      .then(respuestaDeLaAPI => {
+          if (respuestaDeLaAPI.status === 401) {
+              cerrarSesionPorFaltaDeToken();
+          } else {
+              return respuestaDeLaAPI.json();
+          }
+      })
+      .then(bodyDeLaRespuesta => {
+          if (bodyDeLaRespuesta && bodyDeLaRespuesta.error) {
+              mostrarToast('ERROR', 'Error', bodyDeLaRespuesta.error);
+          } else if (bodyDeLaRespuesta?.data) {
+              productoVisualizado = Producto.parse(bodyDeLaRespuesta.data);
+              completarPantallaDetalleProducto();
+              NAV.push("page-detalle");
+          } else {
+              mostrarToast('ERROR', 'Error', 'Por favor, intente nuevamente.');
+          }
+      })
+      .catch(error => console.log(error));
+  } else {
+      mostrarToast('ERROR', 'Error', 'Por favor, intente nuevamente.');
+  }
+}*/
 
 //Registro de actividades 
 function registrarActividad() {
