@@ -68,10 +68,6 @@ function subscripcionEventos() {
 
   //PAISES
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
-
-  document
-    .querySelector("#eliminarActividad")
-    .addEventListener("click", eliminarActividad);
 }
 
 function cerrarMenu() {
@@ -339,7 +335,7 @@ function comboPaisesChangeHandler(evt) {
   console.log(nombre);
 }
 
-//Ver Registros de Actividades
+//Actividades de la api
 function cargarYListarActividades() {
   actividades = [];
   document.querySelector("#divAct").innerHTML = "";
@@ -416,47 +412,46 @@ function cargarYListarActividades() {
 // }
 
 //TODO: falta terminar
-function eliminarActividad() {
+function eliminarActividad(event) {
   const usuarioLogueadoEliminarActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
 
-  const idActividad = this.getAttribute("detalle-id");
+  // Buscar el ID de la actividad desde el botón
+  const idActividad = event.currentTarget.dataset.actividadId;
+  console.log("ID de actividad a eliminar:", idActividad);
 
-  const urlApi = `${apiBaseURL}registros.php?idUsuario=${usuarioLogueadoEliminarActividad.id}`;
-
-  if (idActividad) {
-    fetch(urlApi, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: usuarioLogueadoEliminarActividad.apiKey,
-        iduser: usuarioLogueadoEliminarActividad.id,
-      },
-    })
-      .then((respuestaDeLaAPI) => {
-        if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-        return respuestaDeLaAPI.json();
-      })
-      .then((bodyDeLaRespuesta) => {
-        if (bodyDeLaRespuesta.success) {
-          actividadesCreadas = actividadesCreadas.filter(
-            (actividad) => actividad.idActividad !== idActividad
-          );
-          renderizarActividades(actividadesCreadas);
-          mostrarToast(
-            "SUCCESS",
-            "Éxito",
-            "Actividad eliminada correctamente."
-          );
-        }
-      })
-      .catch((error) => console.log("Error:", error));
-  } else {
-    mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+  if (!idActividad) {
+    mostrarToast("ERROR", "Error", "No se encontró la actividad.");
+    return;
   }
-}
 
+  const urlApi = `${apiBaseURL}registros.php?idRegistro=${idActividad}`;
+
+  fetch(urlApi, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: usuarioLogueadoEliminarActividad.apiKey,
+      iduser: usuarioLogueadoEliminarActividad.id,
+    },
+  })
+    .then((respuestaDeLaAPI) => {
+      if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+      return respuestaDeLaAPI.json();
+    })
+    .then((bodyDeLaRespuesta) => {
+      if (bodyDeLaRespuesta.success) {
+        // Filtrar la actividad eliminada
+        actividadesCreadas = actividadesCreadas.filter(
+          (actividad) => actividad.idActividad !== Number(idActividad)
+        );
+        renderizarActividades(actividadesCreadas);
+        mostrarToast("SUCCESS", "Éxito", "Actividad eliminada correctamente.");
+      }
+    })
+    .catch((error) => console.log("Error:", error));
+}
 //acceder a pantalla de detalle de la actividad
 // function verDetalleActividad() {
 //   const idActividadDetalle = this.getAttribute("detalle-id");
@@ -654,50 +649,55 @@ function renderizarActividades(actividadesCreadas) {
   );
 
   let listadoActividades = "<ion-list>";
+
   actividades.forEach((a) => {
     actividadesCreadas.forEach((ac) => {
-      if (
-        ac.idActividad == a.id &&
-        usuarioLogueadoActividad.id == ac.idUsuario
-      ) {
+      if (usuarioLogueadoActividad.id === ac.idUsuario) {
         listadoActividades += `
-        <ion-item class="ion-item-actividad" actividad-id="${a.id}">
-          <div>
-          <ion-thumbnail slot="start">
-                  <img src="${a.getURLImagen()}" width="100"/>
+          <ion-item class="ion-item-actividad" actividad-id="${ac.idActividad}">
+            <div>
+              <ion-thumbnail slot="start">
+                <img src="${a.getURLImagen()}" width="100" />
               </ion-thumbnail>
-            
-              <ion-label>
-                  <h2>${a.nombre}</h2>                
-              </ion-label> 
-         
-            <p>Tiempo: ${ac.tiempo}</p>
-            
-            <p>Fecha: ${ac.fecha}</p>
 
-            <ion-button color="medium" actividad-id="${
-              ac.idActividad
-            }" id="eliminarActividad">
-            <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
-            </ion-button>
-          </div>
-          
+              <ion-label>
+                <h2>${a.nombre}</h2>
+              </ion-label>
+
+              <p>Tiempo: ${ac.tiempo}</p>
+
+              <p>Fecha: ${ac.fecha}</p>
+
+              <ion-button
+                color="medium"
+                data-actividad-id="${ac.idActividad}"
+                class="eliminarActividad"
+              >
+                <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
+              </ion-button>
+            </div>
           </ion-item>
-        
-         `;
-      } else {
-        listadoActividades += `</ion-item>`;
+        `;
       }
     });
   });
 
-  listadoActividades += "</ion-list> <br><br>";
+  listadoActividades += "</ion-list>";
 
-  if (actividadesCreadas.length === 0) {
+  if (actividadesCreadas.length > 0) {
+    document.querySelectorAll(".eliminarActividad").forEach((boton) => {
+      boton.addEventListener("click", eliminarActividad);
+    });
+  } else {
     listadoActividades = "No se encontraron actividades.";
   }
 
-  document.querySelector("#divAct").innerHTML += listadoActividades;
+  document.querySelector("#divAct").innerHTML = listadoActividades;
+
+  // Ahora asignamos los eventos después de renderizar el DOM
+  document.querySelectorAll(".eliminarActividad").forEach((boton) => {
+    boton.addEventListener("click", eliminarActividad);
+  });
 }
 
 //Registro de actividades
