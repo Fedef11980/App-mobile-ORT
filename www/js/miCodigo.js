@@ -8,6 +8,7 @@ let paises = [];
 const apiBaseURL = "https://movetrack.develotion.com/";
 
 let map = null;
+
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
 const MENU = document.querySelector("#menu");
@@ -187,7 +188,7 @@ function mostrarMapaUsuarios() {
 
 function inicializarMapa() {
   if (!map) {
-    map = L.map("miMapa").setView([51.505, -0.09], 13);
+    map = L.map("miMapa").setView([51.505, -0.09], 13); //metodo para inicializar un mapa
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
     L.marker([51.5, -0.09]).addTo(map).bindPopup("Hola!").openPopup();
   }
@@ -298,6 +299,8 @@ function btnLoginSesionHandler() {
   }
 }
 
+
+//Paises
 function ObtenerListadoPaises(comboParaActualizar) {
   paises = [];
   const urlAPI = apiBaseURL + "paises.php";
