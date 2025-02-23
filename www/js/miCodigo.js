@@ -68,6 +68,10 @@ function subscripcionEventos() {
 
   //PAISES
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
+
+  document
+    .querySelector("#eliminarActividad")
+    .addEventListener("click", eliminarActividad);
 }
 
 function cerrarMenu() {
@@ -94,9 +98,6 @@ function navegar(evt) {
     case "/verActividades":
       mostrarPantallaActividades();
       break;
-    // case "/verDetalle":
-    //   mostrarPantallaDetalleActividad();
-    //   break;
     case "/verUsuarios":
       mostrarMapaUsuarios();
       break;
@@ -126,11 +127,6 @@ function mostrarPantallaActividades() {
   SCREEN_VER_ACTIVIDADES.style.display = "block";
   ObtenerActividadesCreadas();
 }
-
-// function mostrarPantallaDetalleActividad() {
-//   ocultarPantallas();
-//   SCREEN_DETALLE.style.display = "block";
-// }
 
 function actualizarMenu() {
   document.querySelector("#btnMenuLogin").style.display = "none";
@@ -427,16 +423,15 @@ function eliminarActividad() {
 
   const idActividad = this.getAttribute("detalle-id");
 
-  if (idActividad) {
-    const URL = apiBaseURL + "actividades.php";
+  const urlApi = `${apiBaseURL}registros.php?idUsuario=${usuarioLogueadoEliminarActividad.id}`;
 
-    fetch(URL, {
+  if (idActividad) {
+    fetch(urlApi, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         apikey: usuarioLogueadoEliminarActividad.apiKey,
         iduser: usuarioLogueadoEliminarActividad.id,
-        idRegistro: idActividad,
       },
     })
       .then((respuestaDeLaAPI) => {
@@ -445,8 +440,14 @@ function eliminarActividad() {
       })
       .then((bodyDeLaRespuesta) => {
         if (bodyDeLaRespuesta.success) {
-          actividades = actividades.filter(
-            (actividad) => actividad.id !== idActividad
+          actividadesCreadas = actividadesCreadas.filter(
+            (actividad) => actividad.idActividad !== idActividad
+          );
+          renderizarActividades(actividadesCreadas);
+          mostrarToast(
+            "SUCCESS",
+            "Éxito",
+            "Actividad eliminada correctamente."
           );
         }
       })
@@ -457,102 +458,72 @@ function eliminarActividad() {
 }
 
 //acceder a pantalla de detalle de la actividad
-function verDetalleActividad() {
-  const idActividadDetalle = this.getAttribute("detalle-id");
+// function verDetalleActividad() {
+//   const idActividadDetalle = this.getAttribute("detalle-id");
 
-  const usuarioLogueadoVerActividad = JSON.parse(
-    localStorage.getItem("UsuarioLogueadoApp")
-  );
-  const urlAPI = apiBaseURL;
+//   const usuarioLogueadoVerActividad = JSON.parse(
+//     localStorage.getItem("UsuarioLogueadoApp")
+//   );
+//   const urlAPI = apiBaseURL;
 
-  if (idActividadDetalle) {
-    const URLCompleta = urlAPI + "actividades.php";
+//   if (idActividadDetalle) {
+//     const URLCompleta = urlAPI + "registros.php";
 
-    fetch(URLCompleta, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: usuarioLogueadoVerActividad.apiKey,
-        iduser: usuarioLogueadoVerActividad.id,
-      },
-    })
-      .then((respuestaDeLaAPI) => {
-        if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-        return respuestaDeLaAPI.json();
-      })
-      .then((bodyDeLaRespuesta) => {
-        let actividadSeleccionada = null;
+//     fetch(URLCompleta, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         apikey: usuarioLogueadoVerActividad.apiKey,
+//         iduser: usuarioLogueadoVerActividad.id,
+//       },
+//     })
+//       .then((respuestaDeLaAPI) => {
+//         if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+//         return respuestaDeLaAPI.json();
+//       })
+//       .then((bodyDeLaRespuesta) => {
+//         let actividadSeleccionada = null;
 
-        if (
-          bodyDeLaRespuesta.actividades &&
-          bodyDeLaRespuesta.actividades.length > 0
-        ) {
-          bodyDeLaRespuesta.actividades.forEach((actividad) => {
-            if (actividad.id == idActividadDetalle) {
-              actividadSeleccionada = actividad;
-            }
-          });
+//         if (
+//           bodyDeLaRespuesta.actividades &&
+//           bodyDeLaRespuesta.actividades.length > 0
+//         ) {
+//           bodyDeLaRespuesta.actividades.forEach((actividad) => {
+//             if (actividad.id == idActividadDetalle) {
+//               actividadSeleccionada = actividad;
+//             }
+//           });
 
-          if (actividadSeleccionada) {
-            actividadVisualizada = Actividad.parse(actividadSeleccionada);
-            completarPantallaDetalleActividad();
-            NAV.push("page-detalleActividad");
-          } else {
-            mostrarToast(
-              "ERROR",
-              "Error",
-              "No se encontró la actividad seleccionada."
-            );
-          }
-        } else {
-          mostrarToast(
-            "ERROR",
-            "Error",
-            "No se encontraron detalles para la actividad."
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Error en la petición:", error);
-        mostrarToast(
-          "ERROR",
-          "Error",
-          "Hubo un problema al obtener los detalles."
-        );
-      });
-  } else {
-    mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-  }
-}
-
-function generarNumero() {
-  const numero = Math.floor(Math.random() * 60) + 1;
-  return numero;
-}
-
-//pantalla del detalle de la actividad
-// function completarPantallaDetalleActividad() {
-//   let detalleHTML = "";
-//   if (actividadVisualizada) {
-//     detalleHTML += `
-//           <ion-card>
-//             <img alt="Imagen de ${
-//               actividadVisualizada.nombre
-//             }}" src="${actividadVisualizada.getURLImagen()}" />
-//             <ion-card-header>
-//                 <ion-card-title>${actividadVisualizada.nombre}</ion-card-title>
-//             </ion-card-header>
-//             <ion-card-content>
-//                 </ion-card-subtitle>
-//                 <ion-card-subtitle>Cantidad de minutos: ${generarNumero()}</ion-card-subtitle>
-//                 </ion-card-content>
-//           </ion-card>
-//         `;
+//           if (actividadSeleccionada) {
+//             actividadVisualizada = Actividad.parse(actividadSeleccionada);
+//             completarPantallaDetalleActividad();
+//             NAV.push("page-detalleActividad");
+//           } else {
+//             mostrarToast(
+//               "ERROR",
+//               "Error",
+//               "No se encontró la actividad seleccionada."
+//             );
+//           }
+//         } else {
+//           mostrarToast(
+//             "ERROR",
+//             "Error",
+//             "No se encontraron detalles para la actividad."
+//           );
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error en la petición:", error);
+//         mostrarToast(
+//           "ERROR",
+//           "Error",
+//           "Hubo un problema al obtener los detalles."
+//         );
+//       });
 //   } else {
-//     detalleHTML = "Ha ocurrido un error al cargar la información del producto.";
+//     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
 //   }
-
-//   document.querySelector("#divDetalleAct").innerHTML = detalleHTML;
 // }
 
 function completarTablaActividades() {
@@ -704,7 +675,9 @@ function renderizarActividades(actividadesCreadas) {
             
             <p>Fecha: ${ac.fecha}</p>
 
-            <ion-button color="medium" actividad-id="${ac.idActividad}">
+            <ion-button color="medium" actividad-id="${
+              ac.idActividad
+            }" id="eliminarActividad">
             <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
             </ion-button>
           </div>
