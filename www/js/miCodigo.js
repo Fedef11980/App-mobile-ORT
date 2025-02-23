@@ -1,6 +1,7 @@
 //Variables y constantes
 let usuarioLogueado = null;
 let actividades = [];
+let actividadesCreadas = [];
 let actividadVisualizada = [];
 let actividadesFiltradas = [];
 let paises = [];
@@ -20,7 +21,7 @@ const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
 const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const VER_USUARIOS = document.querySelector("#verUsuarios");
 const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
-const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtProductosFiltro");
+const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtActFiltro");
 const PAISES = document.querySelector("#selectorPaís");
 
 //Inicialización del sistema
@@ -67,6 +68,10 @@ function subscripcionEventos() {
 
   //PAISES
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
+
+  document
+    .querySelector("#eliminarActividad")
+    .addEventListener("click", eliminarActividad);
 }
 
 function cerrarMenu() {
@@ -92,9 +97,6 @@ function navegar(evt) {
       break;
     case "/verActividades":
       mostrarPantallaActividades();
-      break;
-    case "/verDetalle":
-      mostrarPantallaDetalleActividad();
       break;
     case "/verUsuarios":
       mostrarMapaUsuarios();
@@ -122,13 +124,8 @@ function mostrarPantallaRegistroActividades() {
 
 function mostrarPantallaActividades() {
   ocultarPantallas();
-  cargarYListarActividades(COMBO_FILTRO_ACTIVIDADES);
   SCREEN_VER_ACTIVIDADES.style.display = "block";
-}
-
-function mostrarPantallaDetalleActividad() {
-  ocultarPantallas();
-  SCREEN_DETALLE.style.display = "block";
+  ObtenerActividadesCreadas();
 }
 
 function actualizarMenu() {
@@ -283,7 +280,7 @@ function btnLoginSesionHandler() {
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
           ); //Queda en el localSorage el UsuarioLogueadoAPP
-          NAV.setRoot("page-verActividades");
+          NAV.setRoot("page-actividades");
           NAV.popToRoot();
         } else if (respuestaBody.mensaje)
           document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
@@ -370,7 +367,6 @@ function cargarYListarActividades() {
         respuestaBody.actividades.forEach((a) => {
           actividades.push(Actividad.parse(a));
         });
-        listarRegistros();
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
@@ -379,45 +375,45 @@ function cargarYListarActividades() {
 }
 
 //lista de Ver Registro
-function listarRegistros() {
-  let listadoDeRegistros = "<ion-list>";
-  actividades.forEach((a) => {
-    if (actividades.length === 0) {
-      listadoDeRegistros = `<p>No se encontraron actividades.</p>`;
-    } else {
-      listadoDeRegistros += `
-        <ion-item class="ion-item-producto">
-        <ion-thumbnail slot="start">
-            <img src="${a.getURLImagen()}" width="100"/>
-        </ion-thumbnail>
-        <ion-label>                    
-            <h2><strong>${a.nombre}</strong></h2>                    
-        </ion-label>
-        
-        <ion-button class="btnVerDetalleActividad" color="warning" 
-        style="padding:15px;" detalle-id="${a.id}">
-        <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
-        </ion-button>
+// function listarRegistros() {
+//   let listadoDeRegistros = "<ion-list>";
+//   actividades.forEach((a) => {
+//     if (actividades.length === 0) {
+//       listadoDeRegistros = `<p>No se encontraron actividades.</p>`;
+//     } else {
+//       listadoDeRegistros += `
+//         <ion-item class="ion-item-producto">
+//         <ion-thumbnail slot="start">
+//             <img src="${a.getURLImagen()}" width="100"/>
+//         </ion-thumbnail>
+//         <ion-label>
+//             <h2><strong>${a.nombre}</strong></h2>
+//         </ion-label>
 
-        <ion-button color="medium" >
-        <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
-        </ion-button>
-        
-        </ion-item>                  
-      `;
-    }
-  });
-  listadoDeRegistros += "</ion-list>";
-  document.querySelector("#divAct").innerHTML = listadoDeRegistros;
-  const botonesTraidosHTML = document.querySelectorAll(
-    ".btnVerDetalleActividad"
-  );
-  if (botonesTraidosHTML?.length > 0) {
-    botonesTraidosHTML.forEach((b) => {
-      b.addEventListener("click", verDetalleActividad);
-    });
-  }
-}
+//         <ion-button class="btnVerDetalleActividad" color="warning"
+//         style="padding:15px;" detalle-id="${a.id}">
+//         <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
+//         </ion-button>
+
+//         <ion-button color="medium" >
+//         <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
+//         </ion-button>
+
+//         </ion-item>
+//       `;
+//     }
+//   });
+//   listadoDeRegistros += "</ion-list>";
+//   document.querySelector("#divAct").innerHTML = listadoDeRegistros;
+//   const botonesTraidosHTML = document.querySelectorAll(
+//     ".btnVerDetalleActividad"
+//   );
+//   if (botonesTraidosHTML?.length > 0) {
+//     botonesTraidosHTML.forEach((b) => {
+//       b.addEventListener("click", verDetalleActividad);
+//     });
+//   }
+// }
 
 //TODO: falta terminar
 function eliminarActividad() {
@@ -425,46 +421,17 @@ function eliminarActividad() {
     localStorage.getItem("UsuarioLogueadoApp")
   );
 
-  if (idActividad) {
-    const URL = apiBaseURL + "/actividades.php";
+  const idActividad = this.getAttribute("detalle-id");
 
-    fetch(URL, {
+  const urlApi = `${apiBaseURL}registros.php?idUsuario=${usuarioLogueadoEliminarActividad.id}`;
+
+  if (idActividad) {
+    fetch(urlApi, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         apikey: usuarioLogueadoEliminarActividad.apiKey,
         iduser: usuarioLogueadoEliminarActividad.id,
-        idRegistro: idActividad,
-      },
-    })
-      .then((respuestaDeLaAPI) => {
-        if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-        return respuestaDeLaAPI.json();
-      })
-      .then((bodyDeLaRespuesta) => {});
-  } else {
-    mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-  }
-}
-
-//acceder a pantalla de detalle de la actividad
-function verDetalleActividad() {
-  const idActividadDetalle = this.getAttribute("detalle-id");
-
-  const usuarioLogueadoVerActividad = JSON.parse(
-    localStorage.getItem("UsuarioLogueadoApp")
-  );
-  const urlAPI = apiBaseURL;
-
-  if (idActividadDetalle) {
-    const URLCompleta = urlAPI + "/actividades.php";
-
-    fetch(URLCompleta, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: usuarioLogueadoVerActividad.apiKey,
-        iduser: usuarioLogueadoVerActividad.id,
       },
     })
       .then((respuestaDeLaAPI) => {
@@ -472,79 +439,92 @@ function verDetalleActividad() {
         return respuestaDeLaAPI.json();
       })
       .then((bodyDeLaRespuesta) => {
-        let actividadSeleccionada = null;
-
-        if (
-          bodyDeLaRespuesta.actividades &&
-          bodyDeLaRespuesta.actividades.length > 0
-        ) {
-          bodyDeLaRespuesta.actividades.forEach((actividad) => {
-            if (actividad.id == idActividadDetalle) {
-              actividadSeleccionada = actividad;
-            }
-          });
-
-          if (actividadSeleccionada) {
-            actividadVisualizada = Actividad.parse(actividadSeleccionada);
-            completarPantallaDetalleActividad();
-            NAV.push("page-detalleActividad");
-          } else {
-            mostrarToast(
-              "ERROR",
-              "Error",
-              "No se encontró la actividad seleccionada."
-            );
-          }
-        } else {
+        if (bodyDeLaRespuesta.success) {
+          actividadesCreadas = actividadesCreadas.filter(
+            (actividad) => actividad.idActividad !== idActividad
+          );
+          renderizarActividades(actividadesCreadas);
           mostrarToast(
-            "ERROR",
-            "Error",
-            "No se encontraron detalles para la actividad."
+            "SUCCESS",
+            "Éxito",
+            "Actividad eliminada correctamente."
           );
         }
       })
-      .catch((error) => {
-        console.error("Error en la petición:", error);
-        mostrarToast(
-          "ERROR",
-          "Error",
-          "Hubo un problema al obtener los detalles."
-        );
-      });
+      .catch((error) => console.log("Error:", error));
   } else {
     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
   }
 }
 
-function generarNumero() {
-  const numero = Math.floor(Math.random() * 60) + 1;
-  return numero;
-}
+//acceder a pantalla de detalle de la actividad
+// function verDetalleActividad() {
+//   const idActividadDetalle = this.getAttribute("detalle-id");
 
-//pantalla del detalle de la actividad
-function completarPantallaDetalleActividad() {
-  let detalleHTML = "";
-  if (actividadVisualizada) {
-    detalleHTML += `
-          <ion-card>
-            <img alt="Imagen de ${
-              actividadVisualizada.nombre
-            }}" src="${actividadVisualizada.getURLImagen()}" />
-            <ion-card-header>                
-                <ion-card-title>${actividadVisualizada.nombre}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-                </ion-card-subtitle>
-                <ion-card-subtitle>Cantidad de minutos: ${generarNumero()}</ion-card-subtitle>
-                </ion-card-content>
-          </ion-card>
-        `;
-  } else {
-    detalleHTML = "Ha ocurrido un error al cargar la información del producto.";
-  }
+//   const usuarioLogueadoVerActividad = JSON.parse(
+//     localStorage.getItem("UsuarioLogueadoApp")
+//   );
+//   const urlAPI = apiBaseURL;
 
-  document.querySelector("#divDetalleAct").innerHTML = detalleHTML;
-}
+//   if (idActividadDetalle) {
+//     const URLCompleta = urlAPI + "registros.php";
+
+//     fetch(URLCompleta, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         apikey: usuarioLogueadoVerActividad.apiKey,
+//         iduser: usuarioLogueadoVerActividad.id,
+//       },
+//     })
+//       .then((respuestaDeLaAPI) => {
+//         if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
+//         return respuestaDeLaAPI.json();
+//       })
+//       .then((bodyDeLaRespuesta) => {
+//         let actividadSeleccionada = null;
+
+//         if (
+//           bodyDeLaRespuesta.actividades &&
+//           bodyDeLaRespuesta.actividades.length > 0
+//         ) {
+//           bodyDeLaRespuesta.actividades.forEach((actividad) => {
+//             if (actividad.id == idActividadDetalle) {
+//               actividadSeleccionada = actividad;
+//             }
+//           });
+
+//           if (actividadSeleccionada) {
+//             actividadVisualizada = Actividad.parse(actividadSeleccionada);
+//             completarPantallaDetalleActividad();
+//             NAV.push("page-detalleActividad");
+//           } else {
+//             mostrarToast(
+//               "ERROR",
+//               "Error",
+//               "No se encontró la actividad seleccionada."
+//             );
+//           }
+//         } else {
+//           mostrarToast(
+//             "ERROR",
+//             "Error",
+//             "No se encontraron detalles para la actividad."
+//           );
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error en la petición:", error);
+//         mostrarToast(
+//           "ERROR",
+//           "Error",
+//           "Hubo un problema al obtener los detalles."
+//         );
+//       });
+//   } else {
+//     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+//   }
+// }
 
 function completarTablaActividades() {
   let listadoActividades = "<ion-list>";
@@ -576,7 +556,7 @@ function inputFiltroProductosChangeHandler() {
 
 function actualizarProductosFiltrados() {
   const filtroIngresado = document
-    .querySelector("#txtProductosFiltro")
+    .querySelector("#txtActFiltro")
     .value.trim()
     .toUpperCase();
   actividadesFiltradas = [];
@@ -631,6 +611,95 @@ function actualizarProductosFiltrados() {
   }
 }*/
 
+function ObtenerActividadesCreadas() {
+  const usuarioLogueadoActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
+
+  const urlApi = `${apiBaseURL}registros.php?idUsuario=${usuarioLogueadoActividad.id}`;
+
+  fetch(urlApi, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: usuarioLogueadoActividad.apiKey,
+      iduser: usuarioLogueadoActividad.id,
+    },
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) {
+        cerrarSesionPorFaltaDeToken();
+        mostrarToast("ERROR", "Error", respuestaAPI.mensaje);
+      }
+      return respuestaAPI.json();
+    })
+    .then((respuestaBody) => {
+      if (respuestaBody?.registros) {
+        actividadesCreadas = respuestaBody.registros; // Guardamos las actividades obtenidas
+        renderizarActividades(actividadesCreadas); // Llamamos la función para actualizar el DOM
+        mostrarToast("SUCCESS", "Éxito", "Actividades obtenidas correctamente");
+      } else {
+        mostrarToast("ERROR", "Error", "No tienes actividades registradas");
+      }
+    })
+    .catch((error) => {
+      console.error("Error obteniendo actividades:", error);
+      mostrarToast("ERROR", "Error", "No se pudieron obtener las actividades");
+    });
+}
+
+function renderizarActividades(actividadesCreadas) {
+  const usuarioLogueadoActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
+
+  let listadoActividades = "<ion-list>";
+  actividades.forEach((a) => {
+    actividadesCreadas.forEach((ac) => {
+      if (
+        ac.idActividad == a.id &&
+        usuarioLogueadoActividad.id == ac.idUsuario
+      ) {
+        listadoActividades += `
+        <ion-item class="ion-item-actividad" actividad-id="${a.id}">
+          <div>
+          <ion-thumbnail slot="start">
+                  <img src="${a.getURLImagen()}" width="100"/>
+              </ion-thumbnail>
+            
+              <ion-label>
+                  <h2>${a.nombre}</h2>                
+              </ion-label> 
+         
+            <p>Tiempo: ${ac.tiempo}</p>
+            
+            <p>Fecha: ${ac.fecha}</p>
+
+            <ion-button color="medium" actividad-id="${
+              ac.idActividad
+            }" id="eliminarActividad">
+            <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
+            </ion-button>
+          </div>
+          
+          </ion-item>
+        
+         `;
+      } else {
+        listadoActividades += `</ion-item>`;
+      }
+    });
+  });
+
+  listadoActividades += "</ion-list> <br><br>";
+
+  if (actividadesCreadas.length === 0) {
+    listadoActividades = "No se encontraron actividades.";
+  }
+
+  document.querySelector("#divAct").innerHTML += listadoActividades;
+}
+
 //Registro de actividades
 function registrarActividad() {
   const usuarioLogueadoActividad = JSON.parse(
@@ -674,12 +743,11 @@ function registrarActividad() {
       return respuestaAPI.json();
     })
     .then((respuestaBody) => {
-      console.log("Respuesta API:", respuestaBody);
-      if (respuestaBody.mensaje) {
-        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      if (respuestaBody?.idRegistro) {
+        actividadesCreadas.push(nuevaActividad);
+        mostrarToast("SUCCESS", "Éxito", "Registro de actividad exitoso");
       } else {
-        actividades.push(nuevaActividad);
-        mostrarToast("SUCCESS", "Éxito", "Actividad registrada correctamente.");
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       }
     })
     .catch((error) => console.log("Error:", error));
