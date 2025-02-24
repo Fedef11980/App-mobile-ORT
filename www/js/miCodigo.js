@@ -10,6 +10,11 @@ const apiBaseURL = "https://movetrack.develotion.com/";
 
 let map = null;
 
+let posicionUsuario = {
+   latitude: -34.90, 
+   longitude: -56.19
+}
+
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
 const MENU = document.querySelector("#menu");
@@ -30,6 +35,8 @@ inicializar();
 
 function inicializar() {
   subscripcionEventos();
+  cargarUbicacionUsuario()
+
 }
 
 function actualizarUsuarioLogueadoDesdeLS() {
@@ -40,39 +47,30 @@ function actualizarUsuarioLogueadoDesdeLS() {
 function subscripcionEventos() {
   //Routeo
   ROUTER.addEventListener("ionRouteDidChange", navegar);
+
   //Login
-  document
-    .querySelector("#btnLoginUsuario")
-    .addEventListener("click", btnLoginSesionHandler);
+  document.querySelector("#btnLoginUsuario").addEventListener("click", btnLoginSesionHandler);
+
   //RegistroUsuario
-  document
-    .querySelector("#btnRegistroUsuario")
-    .addEventListener("click", btnRegistroUsuarioHandler);
+  document.querySelector("#btnRegistroUsuario").addEventListener("click", btnRegistroUsuarioHandler);
+
   // Actividades
-  COMBO_FILTRO_ACTIVIDADES.addEventListener(
-    "ionChange",
-    comboActividadesChangeHandler
-  );
+  COMBO_FILTRO_ACTIVIDADES.addEventListener("ionChange", comboActividadesChangeHandler);
+
   //Registrar Actividad
-  document
-    .querySelector("#btnRegistrarActividad")
-    .addEventListener("click", registrarActividad);
+  document.querySelector("#btnRegistrarActividad").addEventListener("click", registrarActividad);
+
   //Search
-  INPUT_FILTRO_PRODUCTOS.addEventListener(
-    "ionChange",
-    inputFiltroProductosChangeHandler
-  );
+  INPUT_FILTRO_PRODUCTOS.addEventListener("ionChange",inputFiltroProductosChangeHandler);
+
   //Detalle Actividad
-  document
-    .querySelector("#btnDetalleActividadVolver")
-    .addEventListener("click", btnDetalleActividadVolverHandler);
+  document.querySelector("#btnDetalleActividadVolver").addEventListener("click", btnDetalleActividadVolverHandler);
 
   //PAISES
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 
-  document
-    .querySelector("#eliminarActividad")
-    .addEventListener("click", eliminarActividad);
+  //Eliminar Actividad
+ // document.querySelector("#eliminarActividad").addEventListener("click", eliminarActividad);
 }
 
 function cerrarMenu() {
@@ -185,10 +183,88 @@ function mostrarMapaUsuarios() {
 
 function inicializarMapa() {
   if (!map) {
-    map = L.map("miMapa").setView([51.505, -0.09], 13); //metodo para inicializar un mapa
+    map = L.map("miMapa").setView([posicionUsuario.latitude, posicionUsuario.longitude], 15); //metodo para inicializar un mapa
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-    L.marker([51.5, -0.09]).addTo(map).bindPopup("Hola!").openPopup();
+    L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")
+   /*let myIcon = L.icon({
+      iconUrl: "../www/img/banderaUruguay.jpg",
+      iconSize: [100, 80],      
+  });  */
+    
   }
+}
+//Mapa - paises
+function ObtenerListadoPaisesLatitudyLongitud() {
+  paises = [];
+  const urlAPI = apiBaseURL + "paises.php";
+
+  fetch(urlAPI, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((respuestaAPI) => {
+      if (respuestaAPI.status === 401) {
+        cerrarSesionPorFaltaDeToken();
+      } else return respuestaAPI.json();
+    })
+    .then((respuestaBody) => {
+      console.log("Respuesta procesada (JSON):", respuestaBody);
+
+      if (respuestaBody.mensaje) {
+        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      } else if (respuestaBody?.paises?.length > 0) {
+        respuestaBody.paises.forEach((p) => {
+          paises.push({
+            id: p.id,
+            nombre: p.name, // Ajustar nombre
+            moneda: p.currency, // Guardar la moneda si la necesitas
+            latitud: p.latitude, // Usar los nombres correctos
+            longitud: p.longitude
+          });
+        });
+
+        console.log("Lista de países con coordenadas:", paises); // Verifica que se guardan bien
+        actualizarComboPaises(comboParaActualizar);
+      } else {
+        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+      }
+    })
+    .catch((mensaje) => console.error("Error en la API:", mensaje));
+}
+//Mapa - paises
+function paisusuario(evt) {
+  const pais = obtenerPaisPorId(evt.detail.value);
+  if (pais) {
+    console.log("País seleccionado:", pais.nombre);
+    console.log("Latitud:", pais.latitud, "Longitud:", pais.longitud);
+  } else {
+    console.log("País no encontrado");
+  }
+}
+
+
+
+function cargarUbicacionUsuario(){
+  window.navigator.geolocation.getCurrentPosition(
+    (pos) => {
+    if(pos.coords.latitude){
+      posicionUsuario = {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude
+      }
+    }    
+  }, 
+    (err) =>{
+    "no hago nada asumo que el usuario está en ort"
+  });
+}
+
+function comboPaisesChangeHandler(evt) {
+  const pais = obtenerPaisPorId(evt.detail.value);
+  const nombre = pais.nombre;
+  console.log(nombre);
 }
 
 function btnDetalleActividadVolverHandler() {
@@ -296,7 +372,6 @@ function btnLoginSesionHandler() {
   }
 }
 
-
 //Paises
 function ObtenerListadoPaises(comboParaActualizar) {
   paises = [];
@@ -314,6 +389,7 @@ function ObtenerListadoPaises(comboParaActualizar) {
       } else return respuestaAPI.json();
     })
     .then((respuestaBody) => {
+      console.log("Respuesta procesada (JSON):", respuestaBody);
       if (respuestaBody.mensaje) {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.paises?.length > 0) {
@@ -324,8 +400,11 @@ function ObtenerListadoPaises(comboParaActualizar) {
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
+      
+      
     })
     .catch((mensaje) => console.log(mensaje));
+    
 }
 
 function actualizarComboPaises(comboParaActualizar) {
@@ -749,6 +828,7 @@ function registrarActividad() {
       if (respuestaBody?.idRegistro) {
         actividadesCreadas.push(nuevaActividad);
         mostrarToast("SUCCESS", "Éxito", "Registro de actividad exitoso");
+        borrarDatos()
       } else {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       }
@@ -798,22 +878,18 @@ function actualizarComboActividades(comboParaActualizar) {
   }
 }
 
-function comboActividadesChangeHandler(evt) {
-  const acti = obtenerActividadPorId(evt.detail.value);
-  return acti;
-  //const nombre = acti.nombre;
-}
-
 function obtenerActividadPorId(id) {
   let act = null;
   let i = 0;
   while (!act && i < actividades.length) {
     const actividadesActual = actividades[i];
+    console.log("Iteración:", i, "Actividad:", actividadesActual);
     if (actividadesActual.id === id) {
       act = actividadesActual;
     }
     i++;
   }
+  console.log(act);  
   return act;
 }
 
@@ -844,4 +920,6 @@ function cerrarSesionPorFaltaDeToken() {
 function borrarDatos() {
   document.querySelector("#txtLoginMail").value = "";
   document.querySelector("#txtLoginPassword").value = "";
+  document.querySelector("#txtTiempoActividad").valur=""; 
+  document.querySelector("#txtFechaActividad").valur="";
 }
