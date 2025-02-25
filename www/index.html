@@ -172,7 +172,7 @@
           <ion-list>
             <ion-item>
               <ion-input
-                label="Ingrese nombre de usuario"
+                label="Ingrese nombre de usuario" 
                 label-placement="floating"
                 clear-input="true"
                 id="txtNombreRegistro"
@@ -306,36 +306,17 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-searchbar
-            id="txtActFiltro"
-            placeholder="Buscar"
-          ></ion-searchbar>
+          <ion-item>
+            <ion-select id="slcActFiltro" label="Seleccionar por fechas" placeholder="Seleccionar">              
+              <ion-select-option value="semana">Ver última semana</ion-select-option>
+              <ion-select-option value="mes">Ver último mes</ion-select-option>
+              <ion-select-option value="todo">Ver todo</ion-select-option>
+            </ion-select>
+          </ion-item>          
           <div id="divAct"></div>
           <br /><br /><br />
         </ion-content>
-      </page-verActividades>
-
-      <!--Pantalla Detalle de Actividades--> 
-      <page-detalleActividad class="ion-page" id="verDetalleActividad">
-        <ion-header>
-          <ion-toolbar color="warning">
-            <ion-buttons slot="start">
-              <ion-menu-button></ion-menu-button>
-            </ion-buttons>
-            <ion-title>Detalle de actividad</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content>
-          <div id="divDetalleAct"></div>
-          <ion-button
-            id="btnDetalleActividadVolver"
-            expand="block"
-            color="medium"
-            >Regresar</ion-button
-          >
-          <br /><br /><br />
-        </ion-content>
-      </page-detalleActividad>
+      </page-verActividades>      
 
       <!--Pantalla Ver usuario en mapa-->
       <page-verUsuarios class="ion-page" id="verUsuarios">
