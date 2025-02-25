@@ -567,6 +567,8 @@ function eliminarActividad(event) {
     return;
   }
 
+  const urlApi = `${apiBaseURL}registros.php?idRegistro=${idActividad}`;
+
   if (idActividad) {
     fetch(urlApi, {
       method: "DELETE",
@@ -765,7 +767,7 @@ function renderizarActividades(actividadesCreadas) {
     actividadesCreadas.forEach((ac) => {
       if (usuarioLogueadoActividad.id === ac.idUsuario) {
         listadoActividades += `
-          <ion-item class="ion-item-actividad" actividad-id="${ac.idActividad}">
+          <ion-item class="ion-item-actividad" actividad-id="${ac.id}">
             <div>
               <ion-thumbnail slot="start">
                 <img src="${a.getURLImagen()}" width="100" />
@@ -781,7 +783,7 @@ function renderizarActividades(actividadesCreadas) {
 
               <ion-button
                 color="medium"
-                data-actividad-id="${ac.idActividad}"
+                data-actividad-id="${ac.id}"
                 class="eliminarActividad"
               >
                 <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
