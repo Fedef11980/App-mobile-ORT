@@ -401,7 +401,7 @@ function btnLoginSesionHandler() {
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
           ); //Queda en el localSorage el UsuarioLogueadoAPP
-          NAV.setRoot("page-actividades");
+          NAV.setRoot("page-verActividades");
         } else if (respuestaBody.mensaje)
           document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
       })
