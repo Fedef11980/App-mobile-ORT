@@ -298,17 +298,6 @@ function obtenerIdPaisDeUsuarioLogueado() {
   });
 }
 
-/*function obtenerUbicacionesPaises() {
-  let coordenadas = []; // Array para almacenar todas las latitudes y longitudes
-  paises.forEach((pais, i) => {
-    console.log(
-      `Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`
-    );
-    coordenadas.push({ latitud: pais.latitud, longitud: pais.longitud });
-  });
-  return coordenadas; // Devuelve un array con todas las coordenadas
-}*/
-
 function obtenerPaisPorId(id) {
   let pai = null;
   let i = 0;
