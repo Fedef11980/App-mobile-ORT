@@ -6,6 +6,7 @@ let actividadVisualizada = [];
 let actividadesFiltradas = [];
 let paises = [];
 let usuariosPaises = [];
+let usuarios=[];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -16,6 +17,8 @@ let posicionUsuario = {
    latitude: -34.90, 
    longitude: -56.19
 }
+
+
 
 
 
@@ -183,19 +186,18 @@ function mostrarMapaUsuarios() {
   ocultarPantallas();
   SCREEN_VER_USUARIOS_MAPA.style.display = "block";  
   inicializarMapa();  
+  obtenerUbicacionUsuariosPorPais()  
+  
 }
 
-function inicializarMapa() {  
-  const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
+
+function inicializarMapa() {
+  
 
   if (!map) {
     map = L.map("miMapa").setView([posicionUsuario.latitude, posicionUsuario.longitude], 15); //metodo para inicializar un mapa
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-    L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")
-
-   
-   
-   
+    L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")  
    
    
     /*let myIcon = L.icon({
@@ -207,10 +209,11 @@ function inicializarMapa() {
 }
 
 function obtenerUbicacionUsuariosPorPais() {
-  usuariosPaises =[]  
+  usuariosPaises =[]
   const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
 
-  const urlAPI = apiBaseURL + "registros.php";
+  const urlAPI = apiBaseURL + "usuariosPorPais.php";
+
   fetch(urlAPI, {
     method: "GET",
     headers: {
@@ -230,17 +233,9 @@ function obtenerUbicacionUsuariosPorPais() {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.paises?.length > 0) {
         respuestaBody.paises.forEach((p) => {
-          paises.push({
-            id: p.id,
-            nombre: p.name, // Ajustar nombre
-            moneda: p.currency, // Guardar la moneda si la necesitas
-            latitud: p.latitude, // Usar los nombres correctos
-            longitud: p.longitude
-          });
+          usuariosPaises.push(p)          
         });
-        obtenerUbicacionesPaises()  
-        console.log(obtenerUbicacionesPaises);
-              
+        console.log(usuariosPaises);
         console.log("Lista de países con coordenadas:", paises); // Verifica que se guardan bien        
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
@@ -249,14 +244,25 @@ function obtenerUbicacionUsuariosPorPais() {
     .catch((mensaje) => console.error("Error en la API:", mensaje));
 }
 
-function obtenerUbicacionesPaises() {
+function obtenerIdPaisDeUsuarioLogueado() {
+  window.navigator.geolocation.getCurrentPosition((pos) => {
+    if (pos.coords.latitude) {
+      posicionUsuario = {
+        latitude: pos?.coords?.latitude,
+        longitude: pos?.coords?.longitude,
+      };
+    }
+  });
+}
+
+/*function obtenerUbicacionesPaises() {
   let coordenadas = []; // Array para almacenar todas las latitudes y longitudes
   paises.forEach((pais, i) => {
     console.log(`Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`);
     coordenadas.push({ latitud: pais.latitud, longitud: pais.longitud });
   });
   return coordenadas; // Devuelve un array con todas las coordenadas
-}
+}*/
 
 
 function obtenerPaisPorId(id) {
@@ -288,12 +294,11 @@ function cargarUbicacionUsuario() {
       }
     },
     (err) => {
-      console.warn("No se pudo obtener la ubicación. Asumo que el usuario está en ORT.");
+      console.log("No se pudo obtener la ubicación. Asumo que el usuario está en ORT.");
       posicionUsuario = { latitude: -34.9011, longitude: -56.1645 }; // Coordenadas de ORT Uruguay      
     }
   );
 }
-
 
 function comboPaisesChangeHandler(evt) {
   const pais = obtenerPaisPorId(evt.detail.value);
