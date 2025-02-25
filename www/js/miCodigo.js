@@ -2,11 +2,10 @@
 let usuarioLogueado = null;
 let actividades = [];
 let actividadesCreadas = [];
-let actividadVisualizada = [];
 let actividadesFiltradas = [];
 let paises = [];
 let usuariosPaises = [];
-let usuarios=[];
+let usuarios = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -14,13 +13,9 @@ let map = null;
 let marcadorUsuarios = null;
 
 let posicionUsuario = {
-   latitude: -34.90, 
-   longitude: -56.19
-}
-
-
-
-
+  latitude: -34.9,
+  longitude: -56.19,
+};
 
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
@@ -34,7 +29,7 @@ const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
 const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const SCREEN_VER_USUARIOS_MAPA = document.querySelector("#verUsuarios");
 const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
-const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtActFiltro");
+const INPUT_FILTRO_ACT = document.querySelector("#txtActFiltro");
 const PAISES = document.querySelector("#selectorPaís");
 
 //Inicialización del sistema
@@ -73,7 +68,7 @@ function subscripcionEventos() {
     .addEventListener("click", registrarActividad);
 
   //Search
-  INPUT_FILTRO_PRODUCTOS.addEventListener(
+  INPUT_FILTRO_ACT.addEventListener(
     "ionChange",
     inputFiltroProductosChangeHandler
   );
@@ -84,10 +79,6 @@ function subscripcionEventos() {
     .addEventListener("click", btnDetalleActividadVolverHandler);
 
   //PAISES
-  PAISES.addEventListener("ionChange", ObtenerListadoPaises);
-
-  //Eliminar Actividad
-  // document.querySelector("#eliminarActividad").addEventListener("click", eliminarActividad);
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 }
 
@@ -142,7 +133,9 @@ function mostrarPantallaRegistroActividades() {
 function mostrarPantallaActividades() {
   ocultarPantallas();
   SCREEN_VER_ACTIVIDADES.style.display = "block";
+  cargarSelectorActividades(COMBO_FILTRO_ACTIVIDADES);
   ObtenerActividadesCreadas();
+  actualizarActvidadesFiltrados();
 }
 
 function actualizarMenu() {
@@ -195,27 +188,22 @@ function cerrarSesion() {
 //Mapas
 function mostrarMapaUsuarios() {
   ocultarPantallas();
-  SCREEN_VER_USUARIOS_MAPA.style.display = "block";  
-  inicializarMapa();  
-  obtenerUbicacionUsuariosPorPais()  
-  
+  SCREEN_VER_USUARIOS_MAPA.style.display = "block";
+  inicializarMapa();
+  obtenerUbicacionUsuariosPorPais();
 }
 
-
 function inicializarMapa() {
-  const usuarioLogueadoVerActividad = JSON.parse(
-    localStorage.getItem("UsuarioLogueadoApp")
-  );
-
   if (!map) {
     map = L.map("miMapa").setView(
       [posicionUsuario.latitude, posicionUsuario.longitude],
       15
     ); //metodo para inicializar un mapa
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-    L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")  
-   
-   
+    L.marker([posicionUsuario.latitude, posicionUsuario.longitude])
+      .addTo(map)
+      .bindPopup("Ubicación del Usuario");
+
     /*let myIcon = L.icon({
       iconUrl: "../www/img/banderaUruguay.jpg",
       iconSize: [100, 80],      
@@ -224,8 +212,10 @@ function inicializarMapa() {
 }
 
 function obtenerUbicacionUsuariosPorPais() {
-  usuariosPaises =[]
-  const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
+  usuariosPaises = [];
+  const usuarioLogueadoVerActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
 
   const urlAPI = apiBaseURL + "usuariosPorPais.php";
 
@@ -248,10 +238,10 @@ function obtenerUbicacionUsuariosPorPais() {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       } else if (respuestaBody?.paises?.length > 0) {
         respuestaBody.paises.forEach((p) => {
-          usuariosPaises.push(p)          
+          usuariosPaises.push(p);
         });
         console.log(usuariosPaises);
-        console.log("Lista de países con coordenadas:", paises); // Verifica que se guardan bien        
+        console.log("Lista de países con coordenadas:", paises); // Verifica que se guardan bien
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
       }
@@ -280,7 +270,6 @@ function obtenerIdPaisDeUsuarioLogueado() {
   });
   return coordenadas; // Devuelve un array con todas las coordenadas
 }*/
-
 
 function obtenerPaisPorId(id) {
   let pai = null;
@@ -312,8 +301,10 @@ function cargarUbicacionUsuario() {
       }
     },
     (err) => {
-      console.log("No se pudo obtener la ubicación. Asumo que el usuario está en ORT.");
-      posicionUsuario = { latitude: -34.9011, longitude: -56.1645 }; // Coordenadas de ORT Uruguay      
+      console.log(
+        "No se pudo obtener la ubicación. Asumo que el usuario está en ORT."
+      );
+      posicionUsuario = { latitude: -34.9011, longitude: -56.1645 }; // Coordenadas de ORT Uruguay
     }
   );
 }
@@ -322,11 +313,6 @@ function comboPaisesChangeHandler(evt) {
   const pais = obtenerPaisPorId(evt.detail.value);
   const nombre = pais.nombre;
   console.log(nombre);
-}
-
-function btnDetalleActividadVolverHandler() {
-  actividadVisualizada = null;
-  NAV.pop();
 }
 
 //Registro de usuarios
@@ -416,7 +402,6 @@ function btnLoginSesionHandler() {
             JSON.stringify(usuarioLogueado)
           ); //Queda en el localSorage el UsuarioLogueadoAPP
           NAV.setRoot("page-actividades");
-          // NAV.popToRoot();
         } else if (respuestaBody.mensaje)
           document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
       })
@@ -584,15 +569,16 @@ function eliminarActividad(event) {
       })
       .then((bodyDeLaRespuesta) => {
         if (bodyDeLaRespuesta.success) {
+          const idActividadNum = Number(idActividad);
           actividadesCreadas = actividadesCreadas.filter(
-            (actividad) => actividad.idActividad !== idActividad
+            (actividad) => actividad.id !== idActividadNum
           );
-          renderizarActividades(actividadesCreadas);
           mostrarToast(
             "SUCCESS",
             "Éxito",
             "Actividad eliminada correctamente."
           );
+          ObtenerActividadesCreadas();
         }
       })
       .catch((error) => console.log("Error:", error));
@@ -600,104 +586,13 @@ function eliminarActividad(event) {
     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
   }
 }
-//acceder a pantalla de detalle de la actividad
-// function verDetalleActividad() {
-//   const idActividadDetalle = this.getAttribute("detalle-id");
-
-//   const usuarioLogueadoVerActividad = JSON.parse(
-//     localStorage.getItem("UsuarioLogueadoApp")
-//   );
-//   const urlAPI = apiBaseURL;
-
-//   if (idActividadDetalle) {
-//     const URLCompleta = urlAPI + "registros.php";
-
-//     fetch(URLCompleta, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         apikey: usuarioLogueadoVerActividad.apiKey,
-//         iduser: usuarioLogueadoVerActividad.id,
-//       },
-//     })
-//       .then((respuestaDeLaAPI) => {
-//         if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-//         return respuestaDeLaAPI.json();
-//       })
-//       .then((bodyDeLaRespuesta) => {
-//         let actividadSeleccionada = null;
-
-//         if (
-//           bodyDeLaRespuesta.actividades &&
-//           bodyDeLaRespuesta.actividades.length > 0
-//         ) {
-//           bodyDeLaRespuesta.actividades.forEach((actividad) => {
-//             if (actividad.id == idActividadDetalle) {
-//               actividadSeleccionada = actividad;
-//             }
-//           });
-
-//           if (actividadSeleccionada) {
-//             actividadVisualizada = Actividad.parse(actividadSeleccionada);
-//             completarPantallaDetalleActividad();
-//             NAV.push("page-detalleActividad");
-//           } else {
-//             mostrarToast(
-//               "ERROR",
-//               "Error",
-//               "No se encontró la actividad seleccionada."
-//             );
-//           }
-//         } else {
-//           mostrarToast(
-//             "ERROR",
-//             "Error",
-//             "No se encontraron detalles para la actividad."
-//           );
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error en la petición:", error);
-//         mostrarToast(
-//           "ERROR",
-//           "Error",
-//           "Hubo un problema al obtener los detalles."
-//         );
-//       });
-//   } else {
-//     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-//   }
-// }
-
-function completarTablaActividades() {
-  let listadoActividades = "<ion-list>";
-  actividadesFiltradas.forEach((a) => {
-    listadoActividades += `
-        <ion-item class="ion-item-producto" producto-id="${a.id}">
-            <ion-thumbnail slot="start">
-                <img src="${a.getURLImagen()}" width="100"/>
-            </ion-thumbnail>
-            <ion-label>
-                <h2>${a.nombre}</h2>                
-            </ion-label>              
-        </ion-item>
-      `;
-  });
-  listadoActividades += "</ion-list>";
-
-  if (actividadesFiltradas.length === 0) {
-    listadoActividades = "No se encontraron actividades.";
-  }
-
-  document.querySelector("#divAct").innerHTML = listadoActividades;
-}
 
 function inputFiltroProductosChangeHandler() {
   actualizarProductosFiltrados();
   completarTablaActividades();
 }
 
-function actualizarProductosFiltrados() {
+function actualizarActvidadesFiltrados() {
   const filtroIngresado = document
     .querySelector("#txtActFiltro")
     .value.trim()
@@ -708,14 +603,13 @@ function actualizarProductosFiltrados() {
   } else {
     for (let i = 0; i < actividades.length; i++) {
       const actividadActual = actividades[i];
-      for (let j = 0; j < actividadActual.length; j++) {
-        const etiquetaActual = actividadActual.etiquetas[j];
-        if (etiquetaActual.toUpperCase().includes(filtroIngresado)) {
-          actividadesFiltradas.push(actividadActual);
-          break;
-        }
+
+      if (actividadActual.nombre.toUpperCase().includes(filtroIngresado)) {
+        actividadesFiltradas.push(actividadActual);
+        break;
       }
     }
+    renderizarActividades(actividadesFiltradas);
   }
 }
 
@@ -765,7 +659,7 @@ function renderizarActividades(actividadesCreadas) {
 
   actividades.forEach((a) => {
     actividadesCreadas.forEach((ac) => {
-      if (usuarioLogueadoActividad.id === ac.idUsuario) {
+      if (usuarioLogueadoActividad.id == ac.idUsuario) {
         listadoActividades += `
           <ion-item class="ion-item-actividad" actividad-id="${ac.id}">
             <div>
@@ -835,8 +729,6 @@ function registrarActividad() {
     tiempo: tiempo,
     fecha: fecha,
   };
-
-  console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
   fetch(urlApi, {
