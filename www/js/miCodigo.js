@@ -18,10 +18,6 @@ let posicionUsuario = {
    longitude: -56.19
 }
 
-
-
-
-
 //DOM
 const HOME = document.querySelector("#home"); //definir Home
 const MENU = document.querySelector("#menu");
@@ -193,70 +189,105 @@ function cerrarSesion() {
 }
 
 //Mapas
-function mostrarMapaUsuarios() {
+async function mostrarMapaUsuarios() {
   ocultarPantallas();
   SCREEN_VER_USUARIOS_MAPA.style.display = "block";  
-  inicializarMapa();  
-  obtenerUbicacionUsuariosPorPais()  
-  
+  await inicializarMapa();
 }
 
-
-function inicializarMapa() {
-  const usuarioLogueadoVerActividad = JSON.parse(
-    localStorage.getItem("UsuarioLogueadoApp")
-  );
-
-  if (!map) {
-    map = L.map("miMapa").setView(
-      [posicionUsuario.latitude, posicionUsuario.longitude],
-      15
-    ); //metodo para inicializar un mapa
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-    L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")  
-   
-   
-    /*let myIcon = L.icon({
-      iconUrl: "../www/img/banderaUruguay.jpg",
-      iconSize: [100, 80],      
-  });  */
-  }
-}
-
-function obtenerUbicacionUsuariosPorPais() {
-  usuariosPaises =[]
-  const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
-
-  const urlAPI = apiBaseURL + "usuariosPorPais.php";
-
-  fetch(urlAPI, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: usuarioLogueadoVerActividad.apiKey,
-      iduser: usuarioLogueadoVerActividad.id,
-    },
-  })
-    .then((respuestaAPI) => {
-      if (respuestaAPI.status === 401) {
-        cerrarSesionPorFaltaDeToken();
-      } else return respuestaAPI.json();
-    })
-    .then((respuestaBody) => {
-      console.log("Respuesta procesada (JSON):", respuestaBody);
-      if (respuestaBody.mensaje) {
-        mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      } else if (respuestaBody?.paises?.length > 0) {
-        respuestaBody.paises.forEach((p) => {
-          usuariosPaises.push(p)          
-        });
-        console.log(usuariosPaises);
-        console.log("Lista de países con coordenadas:", paises); // Verifica que se guardan bien        
-      } else {
-        mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
+async function inicializarMapa() {
+  try {
+    // Obtener los países con sus coordenadas
+    const paises = await RetornarListaDePaises();
+    console.log("Países obtenidos:", paises);
+    
+    // Obtener los usuarios por país
+    const usuariosPorPais = await obtenerUbicacionUsuariosPorPais();
+    console.log("Usuarios por país:", usuariosPorPais);
+    
+    // Crear mapa si no existe
+    if (!map) {
+      map = L.map("miMapa").setView(
+        [posicionUsuario.latitude, posicionUsuario.longitude],
+        2  // Zoom más alejado para ver más países
+      );
+      
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+      
+      // Añadir marcador para la ubicación del usuario
+      L.marker([posicionUsuario.latitude, posicionUsuario.longitude])
+        .addTo(map)
+        .bindPopup("Tu ubicación")
+        .openPopup();
+      
+      // Limitar a los 10 países con más usuarios
+      const paisesConUsuarios = [];
+      
+      // Combinar datos de países con datos de usuarios
+      for (const paisUsuario of usuariosPorPais) {
+        const paisInfo = paises.find(p => p.id === paisUsuario.id);
+        if (paisInfo && paisInfo.latitude && paisInfo.longitude) {
+          paisesConUsuarios.push({
+            id: paisInfo.id,
+            nombre: paisInfo.name,
+            latitud: paisInfo.latitude,
+            longitud: paisInfo.longitude,
+            cantidadUsuarios: paisUsuario.cantidadUsuarios
+          });
+        }
       }
-    })
-    .catch((mensaje) => console.error("Error en la API:", mensaje));
+      
+      // Ordenar por cantidad de usuarios (de mayor a menor)
+      paisesConUsuarios.sort((a, b) => b.cantidadUsuarios - a.cantidadUsuarios);
+      
+      // Limitar a los 10 primeros
+      const top10Paises = paisesConUsuarios.slice(0, 10);
+      
+      console.log("Top 10 países con más usuarios:", top10Paises);
+      
+      // Crear icono personalizado para los marcadores
+      const iconoUsuarios = L.divIcon({
+        className: 'marcador-usuarios',
+        html: '<div style="background-color: #3880ff; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold;">👥</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
+      
+      // Añadir marcadores para cada país del top 10
+      top10Paises.forEach(pais => {
+        const marker = L.marker([pais.latitud, pais.longitud], {icon: iconoUsuarios})
+          .addTo(map)
+          .bindPopup(`<b>${pais.nombre}</b><br>Usuarios: ${pais.cantidadUsuarios}`);
+          
+        // Añadir tooltip permanente
+        marker.bindTooltip(`${pais.cantidadUsuarios} usuarios`, 
+          {permanent: true, direction: 'top', className: 'tooltip-usuarios'}
+        );
+      });
+      
+      // Añadir estilos para el tooltip
+      const style = document.createElement('style');
+      style.textContent = `
+        .tooltip-usuarios {
+          background-color: #3880ff;
+          border: none;
+          color: white;
+          font-weight: bold;
+          padding: 5px 10px;
+          border-radius: 10px;
+        }
+        .marcador-usuarios {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  } catch (error) {
+    console.error("Error al inicializar mapa:", error);
+    mostrarToast("ERROR", "Error", "Problema al inicializar el mapa");
+  }
 }
 
 function obtenerIdPaisDeUsuarioLogueado() {
@@ -270,17 +301,48 @@ function obtenerIdPaisDeUsuarioLogueado() {
   });
 }
 
-/*function obtenerUbicacionesPaises() {
-  let coordenadas = []; // Array para almacenar todas las latitudes y longitudes
-  paises.forEach((pais, i) => {
-    console.log(
-      `Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`
-    );
-    coordenadas.push({ latitud: pais.latitud, longitud: pais.longitud });
-  });
-  return coordenadas; // Devuelve un array con todas las coordenadas
-}*/
+async function obtenerUbicacionUsuariosPorPais() {
+  usuariosPaises = [];
+  const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
 
+  const urlAPI = apiBaseURL + "usuariosPorPais.php";
+
+  try {
+    const respuestaAPI = await fetch(urlAPI, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: usuarioLogueadoVerActividad.apiKey,
+        iduser: usuarioLogueadoVerActividad.id,
+      },
+    });
+
+    if (respuestaAPI.status === 401) {
+      cerrarSesionPorFaltaDeToken();
+      return [];
+    }
+
+    const respuestaBody = await respuestaAPI.json();
+    console.log("Respuesta usuarios por país:", respuestaBody);
+
+    if (respuestaBody.mensaje) {
+      mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      return [];
+    } 
+    
+    if (respuestaBody?.paises?.length > 0) {
+      usuariosPaises = respuestaBody.paises;
+      console.log("Usuarios por país:", usuariosPaises);
+      return usuariosPaises;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error al obtener usuarios por país:", error);
+    mostrarToast("ERROR", "Error", "No se pudieron obtener los usuarios por país");
+    return [];
+  }
+}
 
 function obtenerPaisPorId(id) {
   let pai = null;
@@ -462,6 +524,40 @@ function ObtenerListadoPaises(comboParaActualizar) {
     .catch((mensaje) => console.log(mensaje));
 }
 
+async function RetornarListaDePaises() {
+  try {
+    const urlAPI = apiBaseURL + "paises.php";
+    const respuestaAPI = await fetch(urlAPI, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (respuestaAPI.status === 401) {
+      cerrarSesionPorFaltaDeToken();
+      return [];
+    }
+    
+    const respuestaBody = await respuestaAPI.json();
+    
+    if (respuestaBody.mensaje) {
+      mostrarToast("ERROR", "Error", respuestaBody.mensaje);
+      return [];
+    } 
+    
+    if (respuestaBody?.paises?.length > 0) {
+      const paisesArray = respuestaBody.paises.map(p => Pais.parse(p));
+      return paisesArray;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error al obtener países:", error);
+    return [];
+  }
+}
+
 function actualizarComboPaises(comboParaActualizar) {
   comboParaActualizar.innerHTML = "";
   for (let i = 0; i < paises.length; i++) {
@@ -511,52 +607,9 @@ function cargarYListarActividades() {
     .catch((mensaje) => console.log(mensaje));
 }
 
-//lista de Ver Registro
-// function listarRegistros() {
-//   let listadoDeRegistros = "<ion-list>";
-//   actividades.forEach((a) => {
-//     if (actividades.length === 0) {
-//       listadoDeRegistros = `<p>No se encontraron actividades.</p>`;
-//     } else {
-//       listadoDeRegistros += `
-//         <ion-item class="ion-item-producto">
-//         <ion-thumbnail slot="start">
-//             <img src="${a.getURLImagen()}" width="100"/>
-//         </ion-thumbnail>
-//         <ion-label>
-//             <h2><strong>${a.nombre}</strong></h2>
-//         </ion-label>
-
-//         <ion-button class="btnVerDetalleActividad" color="warning"
-//         style="padding:15px;" detalle-id="${a.id}">
-//         <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
-//         </ion-button>
-
-//         <ion-button color="medium" >
-//         <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
-//         </ion-button>
-
-//         </ion-item>
-//       `;
-//     }
-//   });
-//   listadoDeRegistros += "</ion-list>";
-//   document.querySelector("#divAct").innerHTML = listadoDeRegistros;
-//   const botonesTraidosHTML = document.querySelectorAll(
-//     ".btnVerDetalleActividad"
-//   );
-//   if (botonesTraidosHTML?.length > 0) {
-//     botonesTraidosHTML.forEach((b) => {
-//       b.addEventListener("click", verDetalleActividad);
-//     });
-//   }
-// }
-
 //TODO: falta terminar
 function eliminarActividad(event) {
-  const usuarioLogueadoEliminarActividad = JSON.parse(
-    localStorage.getItem("UsuarioLogueadoApp")
-  );
+  const usuarioLogueadoEliminarActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
 
   // Buscar el ID de la actividad desde el botón
   const idActividad = event.currentTarget.dataset.actividadId;
