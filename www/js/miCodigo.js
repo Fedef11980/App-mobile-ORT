@@ -37,13 +37,12 @@ const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
 const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtActFiltro");
 const PAISES = document.querySelector("#selectorPaís");
 
-
 //Inicialización del sistema
 inicializar();
 
 function inicializar() {
   subscripcionEventos();
-  cargarUbicacionUsuario()
+  cargarUbicacionUsuario();
 }
 
 function actualizarUsuarioLogueadoDesdeLS() {
@@ -56,28 +55,40 @@ function subscripcionEventos() {
   ROUTER.addEventListener("ionRouteDidChange", navegar);
 
   //Login
-  document.querySelector("#btnLoginUsuario").addEventListener("click", btnLoginSesionHandler);
+  document
+    .querySelector("#btnLoginUsuario")
+    .addEventListener("click", btnLoginSesionHandler);
 
   //RegistroUsuario
-  document.querySelector("#btnRegistroUsuario").addEventListener("click", btnRegistroUsuarioHandler);
+  document
+    .querySelector("#btnRegistroUsuario")
+    .addEventListener("click", btnRegistroUsuarioHandler);
 
   // Actividades
   //COMBO_FILTRO_ACTIVIDADES.addEventListener("ionChange", comboActividadesChangeHandler);
 
   //Registrar Actividad
-  document.querySelector("#btnRegistrarActividad").addEventListener("click", registrarActividad);
+  document
+    .querySelector("#btnRegistrarActividad")
+    .addEventListener("click", registrarActividad);
 
   //Search
-  INPUT_FILTRO_PRODUCTOS.addEventListener("ionChange",inputFiltroProductosChangeHandler);
+  INPUT_FILTRO_PRODUCTOS.addEventListener(
+    "ionChange",
+    inputFiltroProductosChangeHandler
+  );
 
   //Detalle Actividad
-  document.querySelector("#btnDetalleActividadVolver").addEventListener("click", btnDetalleActividadVolverHandler);
+  document
+    .querySelector("#btnDetalleActividadVolver")
+    .addEventListener("click", btnDetalleActividadVolverHandler);
 
   //PAISES
-  PAISES.addEventListener("ionChange", ObtenerListadoPaises);  
+  PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 
   //Eliminar Actividad
- // document.querySelector("#eliminarActividad").addEventListener("click", eliminarActividad);
+  // document.querySelector("#eliminarActividad").addEventListener("click", eliminarActividad);
+  PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 }
 
 function cerrarMenu() {
@@ -192,10 +203,15 @@ function mostrarMapaUsuarios() {
 
 
 function inicializarMapa() {
-  
+  const usuarioLogueadoVerActividad = JSON.parse(
+    localStorage.getItem("UsuarioLogueadoApp")
+  );
 
   if (!map) {
-    map = L.map("miMapa").setView([posicionUsuario.latitude, posicionUsuario.longitude], 15); //metodo para inicializar un mapa
+    map = L.map("miMapa").setView(
+      [posicionUsuario.latitude, posicionUsuario.longitude],
+      15
+    ); //metodo para inicializar un mapa
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
     L.marker([posicionUsuario.latitude, posicionUsuario.longitude]).addTo(map).bindPopup("Ubicación del Usuario")  
    
@@ -204,7 +220,6 @@ function inicializarMapa() {
       iconUrl: "../www/img/banderaUruguay.jpg",
       iconSize: [100, 80],      
   });  */
-    
   }
 }
 
@@ -219,7 +234,7 @@ function obtenerUbicacionUsuariosPorPais() {
     headers: {
       "Content-Type": "application/json",
       apikey: usuarioLogueadoVerActividad.apiKey,
-      iduser: usuarioLogueadoVerActividad.id,      
+      iduser: usuarioLogueadoVerActividad.id,
     },
   })
     .then((respuestaAPI) => {
@@ -258,7 +273,9 @@ function obtenerIdPaisDeUsuarioLogueado() {
 /*function obtenerUbicacionesPaises() {
   let coordenadas = []; // Array para almacenar todas las latitudes y longitudes
   paises.forEach((pais, i) => {
-    console.log(`Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`);
+    console.log(
+      `Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`
+    );
     coordenadas.push({ latitud: pais.latitud, longitud: pais.longitud });
   });
   return coordenadas; // Devuelve un array con todas las coordenadas
@@ -269,7 +286,8 @@ function obtenerPaisPorId(id) {
   let pai = null;
   let i = 0;
   console.log("Lista de países:", paises);
-  while (!pai && i < paises.length) { // Se ejecuta mientras pai sea null y i sea menor a paises.length
+  while (!pai && i < paises.length) {
+    // Se ejecuta mientras pai sea null y i sea menor a paises.length
     const paisActual = paises[i];
     console.log("Iteración:", i, "paises:", paisActual);
     if (paisActual.id === id) {
@@ -277,7 +295,7 @@ function obtenerPaisPorId(id) {
     }
     i++;
   }
-  console.log(pai);  
+  console.log(pai);
   return pai;
 }
 
@@ -286,11 +304,11 @@ function cargarUbicacionUsuario() {
     (pos) => {
       if (pos.coords.latitude) {
         posicionUsuario = {
-          latitude: pos?.coords?.latitude,  
-          longitude: pos?.coords?.longitude 
+          latitude: pos?.coords?.latitude,
+          longitude: pos?.coords?.longitude,
         };
-        console.log(pos);        
-        console.log("Ubicación del usuario:", posicionUsuario);         
+        console.log(pos);
+        console.log("Ubicación del usuario:", posicionUsuario);
       }
     },
     (err) => {
@@ -341,19 +359,24 @@ function btnRegistroUsuarioHandler() {
         // nos entereamos de la promesa cuando se resuelve
         if (respuestaDeApi.status === 200) {
           borrarDatos();
-          document.querySelector("#pRegistro").innerHTML = "Usuario correctamente registrado, puede iniciar sesión";
+          document.querySelector("#pRegistro").innerHTML =
+            "Usuario correctamente registrado, puede iniciar sesión";
         } else {
-          document.querySelector("#pRegistro").innerHTML = "Ha ocurrido un error, intente más tarde";
+          document.querySelector("#pRegistro").innerHTML =
+            "Ha ocurrido un error, intente más tarde";
         }
         return respuestaDeApi.json();
       })
-      .then((respuestaBody) => {        
+      .then((respuestaBody) => {
         borrarDatos();
-        if (respuestaBody.mensaje)document.querySelector("#pRegistro").innerHTML = respuestaBody.mensaje;
+        if (respuestaBody.mensaje)
+          document.querySelector("#pRegistro").innerHTML =
+            respuestaBody.mensaje;
       })
       .catch((mensaje) => console.log(mensaje));
   } else {
-    document.querySelector("#pRegistro").innerHTML = "Todos los campos son obligatorios";
+    document.querySelector("#pRegistro").innerHTML =
+      "Todos los campos son obligatorios";
   }
 }
 
@@ -434,9 +457,9 @@ function ObtenerListadoPaises(comboParaActualizar) {
         actualizarComboPaises(comboParaActualizar);
       } else {
         mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-      }      
+      }
     })
-    .catch((mensaje) => console.log(mensaje));    
+    .catch((mensaje) => console.log(mensaje));
 }
 
 function actualizarComboPaises(comboParaActualizar) {
@@ -453,7 +476,7 @@ function comboPaisesChangeHandler(evt) {
   console.log(nombre);
 }
 
-//Ver Registros de Actividades
+//Actividades de la api
 function cargarYListarActividades() {
   actividades = [];
   document.querySelector("#divAct").innerHTML = "";
@@ -530,14 +553,19 @@ function cargarYListarActividades() {
 // }
 
 //TODO: falta terminar
-function eliminarActividad() {
+function eliminarActividad(event) {
   const usuarioLogueadoEliminarActividad = JSON.parse(
     localStorage.getItem("UsuarioLogueadoApp")
   );
 
-  const idActividad = this.getAttribute("detalle-id");
+  // Buscar el ID de la actividad desde el botón
+  const idActividad = event.currentTarget.dataset.actividadId;
+  console.log("ID de actividad a eliminar:", idActividad);
 
-  const urlApi = `${apiBaseURL}registros.php?idUsuario=${usuarioLogueadoEliminarActividad.id}`;
+  if (!idActividad) {
+    mostrarToast("ERROR", "Error", "No se encontró la actividad.");
+    return;
+  }
 
   if (idActividad) {
     fetch(urlApi, {
@@ -570,7 +598,6 @@ function eliminarActividad() {
     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
   }
 }
-
 //acceder a pantalla de detalle de la actividad
 // function verDetalleActividad() {
 //   const idActividadDetalle = this.getAttribute("detalle-id");
@@ -733,50 +760,55 @@ function renderizarActividades(actividadesCreadas) {
   );
 
   let listadoActividades = "<ion-list>";
+
   actividades.forEach((a) => {
     actividadesCreadas.forEach((ac) => {
-      if (
-        ac.idActividad == a.id &&
-        usuarioLogueadoActividad.id == ac.idUsuario
-      ) {
+      if (usuarioLogueadoActividad.id === ac.idUsuario) {
         listadoActividades += `
-        <ion-item class="ion-item-actividad" actividad-id="${a.id}">
-          <div>
-          <ion-thumbnail slot="start">
-                  <img src="${a.getURLImagen()}" width="100"/>
+          <ion-item class="ion-item-actividad" actividad-id="${ac.idActividad}">
+            <div>
+              <ion-thumbnail slot="start">
+                <img src="${a.getURLImagen()}" width="100" />
               </ion-thumbnail>
-            
-              <ion-label>
-                  <h2>${a.nombre}</h2>                
-              </ion-label> 
-         
-            <p>Tiempo: ${ac.tiempo}</p>
-            
-            <p>Fecha: ${ac.fecha}</p>
 
-            <ion-button color="medium" actividad-id="${
-              ac.idActividad
-            }" id="eliminarActividad">
-            <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
-            </ion-button>
-          </div>
-          
+              <ion-label>
+                <h2>${a.nombre}</h2>
+              </ion-label>
+
+              <p>Tiempo: ${ac.tiempo}</p>
+
+              <p>Fecha: ${ac.fecha}</p>
+
+              <ion-button
+                color="medium"
+                data-actividad-id="${ac.idActividad}"
+                class="eliminarActividad"
+              >
+                <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
+              </ion-button>
+            </div>
           </ion-item>
-        
-         `;
-      } else {
-        listadoActividades += `</ion-item>`;
+        `;
       }
     });
   });
 
-  listadoActividades += "</ion-list> <br><br>";
+  listadoActividades += "</ion-list>";
 
-  if (actividadesCreadas.length === 0) {
+  if (actividadesCreadas.length > 0) {
+    document.querySelectorAll(".eliminarActividad").forEach((boton) => {
+      boton.addEventListener("click", eliminarActividad);
+    });
+  } else {
     listadoActividades = "No se encontraron actividades.";
   }
 
-  document.querySelector("#divAct").innerHTML += listadoActividades;
+  document.querySelector("#divAct").innerHTML = listadoActividades;
+
+  // Ahora asignamos los eventos después de renderizar el DOM
+  document.querySelectorAll(".eliminarActividad").forEach((boton) => {
+    boton.addEventListener("click", eliminarActividad);
+  });
 }
 
 //Registro de actividades
@@ -825,7 +857,7 @@ function registrarActividad() {
       if (respuestaBody?.idRegistro) {
         actividadesCreadas.push(nuevaActividad);
         mostrarToast("SUCCESS", "Éxito", "Registro de actividad exitoso");
-        borrarDatos()
+        borrarDatos();
       } else {
         mostrarToast("ERROR", "Error", respuestaBody.mensaje);
       }
@@ -886,7 +918,7 @@ function obtenerActividadPorId(id) {
     }
     i++;
   }
-  console.log(act);  
+  console.log(act);
   return act;
 }
 
@@ -917,9 +949,9 @@ function cerrarSesionPorFaltaDeToken() {
 function borrarDatos() {
   document.querySelector("#txtLoginMail").value = "";
   document.querySelector("#txtLoginPassword").value = "";
-  document.querySelector("#txtTiempoActividad").value=""; 
-  document.querySelector("#txtFechaActividad").value="";
-  document.querySelector("#txtNombreRegistro").value ="";
-  document.querySelector("#txtPasswoedIngresado").value ="";
-  document.querySelector("#selectorPaís").value="";
+  document.querySelector("#txtTiempoActividad").value = "";
+  document.querySelector("#txtFechaActividad").value = "";
+  document.querySelector("#txtNombreRegistro").value = "";
+  document.querySelector("#txtPasswoedIngresado").value = "";
+  document.querySelector("#selectorPaís").value = "";
 }

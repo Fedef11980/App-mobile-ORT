@@ -36,7 +36,6 @@ class RegistrarActividad {
 
   static parse(data) {
     const registrarActividad = new RegistrarActividad();
-
     if (data.idActividad) {
       registrarActividad.idActividad = data.idActividad;
     }
