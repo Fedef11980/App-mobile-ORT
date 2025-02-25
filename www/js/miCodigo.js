@@ -2,11 +2,10 @@
 let usuarioLogueado = null;
 let actividades = [];
 let actividadesCreadas = [];
-let actividadVisualizada = [];
 let actividadesFiltradas = [];
 let paises = [];
 let usuariosPaises = [];
-let usuarios=[];
+let usuarios = [];
 
 const apiBaseURL = "https://movetrack.develotion.com/";
 
@@ -30,7 +29,7 @@ const SCREEN_VER_ACTIVIDADES = document.querySelector("#verActividades");
 const SCREEN_DETALLE = document.querySelector("#verDetalleActividad");
 const SCREEN_VER_USUARIOS_MAPA = document.querySelector("#verUsuarios");
 const COMBO_FILTRO_ACTIVIDADES = document.querySelector("#selectorActividad");
-const INPUT_FILTRO_PRODUCTOS = document.querySelector("#txtActFiltro");
+const INPUT_FILTRO_ACT = document.querySelector("#txtActFiltro");
 const PAISES = document.querySelector("#selectorPaís");
 
 //Inicialización del sistema
@@ -69,7 +68,7 @@ function subscripcionEventos() {
     .addEventListener("click", registrarActividad);
 
   //Search
-  INPUT_FILTRO_PRODUCTOS.addEventListener(
+  INPUT_FILTRO_ACT.addEventListener(
     "ionChange",
     inputFiltroProductosChangeHandler
   );
@@ -80,10 +79,6 @@ function subscripcionEventos() {
     .addEventListener("click", btnDetalleActividadVolverHandler);
 
   //PAISES
-  PAISES.addEventListener("ionChange", ObtenerListadoPaises);
-
-  //Eliminar Actividad
-  // document.querySelector("#eliminarActividad").addEventListener("click", eliminarActividad);
   PAISES.addEventListener("ionChange", ObtenerListadoPaises);
 }
 
@@ -138,7 +133,9 @@ function mostrarPantallaRegistroActividades() {
 function mostrarPantallaActividades() {
   ocultarPantallas();
   SCREEN_VER_ACTIVIDADES.style.display = "block";
+  cargarSelectorActividades(COMBO_FILTRO_ACTIVIDADES);
   ObtenerActividadesCreadas();
+  actualizarActvidadesFiltrados();
 }
 
 function actualizarMenu() {
@@ -301,48 +298,16 @@ function obtenerIdPaisDeUsuarioLogueado() {
   });
 }
 
-async function obtenerUbicacionUsuariosPorPais() {
-  usuariosPaises = [];
-  const usuarioLogueadoVerActividad = JSON.parse(localStorage.getItem("UsuarioLogueadoApp"));
-
-  const urlAPI = apiBaseURL + "usuariosPorPais.php";
-
-  try {
-    const respuestaAPI = await fetch(urlAPI, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: usuarioLogueadoVerActividad.apiKey,
-        iduser: usuarioLogueadoVerActividad.id,
-      },
-    });
-
-    if (respuestaAPI.status === 401) {
-      cerrarSesionPorFaltaDeToken();
-      return [];
-    }
-
-    const respuestaBody = await respuestaAPI.json();
-    console.log("Respuesta usuarios por país:", respuestaBody);
-
-    if (respuestaBody.mensaje) {
-      mostrarToast("ERROR", "Error", respuestaBody.mensaje);
-      return [];
-    } 
-    
-    if (respuestaBody?.paises?.length > 0) {
-      usuariosPaises = respuestaBody.paises;
-      console.log("Usuarios por país:", usuariosPaises);
-      return usuariosPaises;
-    }
-    
-    return [];
-  } catch (error) {
-    console.error("Error al obtener usuarios por país:", error);
-    mostrarToast("ERROR", "Error", "No se pudieron obtener los usuarios por país");
-    return [];
-  }
-}
+/*function obtenerUbicacionesPaises() {
+  let coordenadas = []; // Array para almacenar todas las latitudes y longitudes
+  paises.forEach((pais, i) => {
+    console.log(
+      `Índice ${i}: Latitud: ${pais.latitud}, Longitud: ${pais.longitud}`
+    );
+    coordenadas.push({ latitud: pais.latitud, longitud: pais.longitud });
+  });
+  return coordenadas; // Devuelve un array con todas las coordenadas
+}*/
 
 function obtenerPaisPorId(id) {
   let pai = null;
@@ -374,8 +339,10 @@ function cargarUbicacionUsuario() {
       }
     },
     (err) => {
-      console.log("No se pudo obtener la ubicación. Asumo que el usuario está en ORT.");
-      posicionUsuario = { latitude: -34.9011, longitude: -56.1645 }; // Coordenadas de ORT Uruguay      
+      console.log(
+        "No se pudo obtener la ubicación. Asumo que el usuario está en ORT."
+      );
+      posicionUsuario = { latitude: -34.9011, longitude: -56.1645 }; // Coordenadas de ORT Uruguay
     }
   );
 }
@@ -384,11 +351,6 @@ function comboPaisesChangeHandler(evt) {
   const pais = obtenerPaisPorId(evt.detail.value);
   const nombre = pais.nombre;
   console.log(nombre);
-}
-
-function btnDetalleActividadVolverHandler() {
-  actividadVisualizada = null;
-  NAV.pop();
 }
 
 //Registro de usuarios
@@ -477,8 +439,7 @@ function btnLoginSesionHandler() {
             "UsuarioLogueadoApp",
             JSON.stringify(usuarioLogueado)
           ); //Queda en el localSorage el UsuarioLogueadoAPP
-          NAV.setRoot("page-actividades");
-          // NAV.popToRoot();
+          NAV.setRoot("page-verActividades");
         } else if (respuestaBody.mensaje)
           document.querySelector("#pLogin").innerHTML = respuestaBody.mensaje;
       })
@@ -620,6 +581,8 @@ function eliminarActividad(event) {
     return;
   }
 
+  const urlApi = `${apiBaseURL}registros.php?idRegistro=${idActividad}`;
+
   if (idActividad) {
     fetch(urlApi, {
       method: "DELETE",
@@ -635,15 +598,16 @@ function eliminarActividad(event) {
       })
       .then((bodyDeLaRespuesta) => {
         if (bodyDeLaRespuesta.success) {
+          const idActividadNum = Number(idActividad);
           actividadesCreadas = actividadesCreadas.filter(
-            (actividad) => actividad.idActividad !== idActividad
+            (actividad) => actividad.id !== idActividadNum
           );
-          renderizarActividades(actividadesCreadas);
           mostrarToast(
             "SUCCESS",
             "Éxito",
             "Actividad eliminada correctamente."
           );
+          ObtenerActividadesCreadas();
         }
       })
       .catch((error) => console.log("Error:", error));
@@ -651,104 +615,13 @@ function eliminarActividad(event) {
     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
   }
 }
-//acceder a pantalla de detalle de la actividad
-// function verDetalleActividad() {
-//   const idActividadDetalle = this.getAttribute("detalle-id");
-
-//   const usuarioLogueadoVerActividad = JSON.parse(
-//     localStorage.getItem("UsuarioLogueadoApp")
-//   );
-//   const urlAPI = apiBaseURL;
-
-//   if (idActividadDetalle) {
-//     const URLCompleta = urlAPI + "registros.php";
-
-//     fetch(URLCompleta, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         apikey: usuarioLogueadoVerActividad.apiKey,
-//         iduser: usuarioLogueadoVerActividad.id,
-//       },
-//     })
-//       .then((respuestaDeLaAPI) => {
-//         if (respuestaDeLaAPI.status === 401) cerrarSesionPorFaltaDeToken();
-//         return respuestaDeLaAPI.json();
-//       })
-//       .then((bodyDeLaRespuesta) => {
-//         let actividadSeleccionada = null;
-
-//         if (
-//           bodyDeLaRespuesta.actividades &&
-//           bodyDeLaRespuesta.actividades.length > 0
-//         ) {
-//           bodyDeLaRespuesta.actividades.forEach((actividad) => {
-//             if (actividad.id == idActividadDetalle) {
-//               actividadSeleccionada = actividad;
-//             }
-//           });
-
-//           if (actividadSeleccionada) {
-//             actividadVisualizada = Actividad.parse(actividadSeleccionada);
-//             completarPantallaDetalleActividad();
-//             NAV.push("page-detalleActividad");
-//           } else {
-//             mostrarToast(
-//               "ERROR",
-//               "Error",
-//               "No se encontró la actividad seleccionada."
-//             );
-//           }
-//         } else {
-//           mostrarToast(
-//             "ERROR",
-//             "Error",
-//             "No se encontraron detalles para la actividad."
-//           );
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error en la petición:", error);
-//         mostrarToast(
-//           "ERROR",
-//           "Error",
-//           "Hubo un problema al obtener los detalles."
-//         );
-//       });
-//   } else {
-//     mostrarToast("ERROR", "Error", "Por favor, intente nuevamente.");
-//   }
-// }
-
-function completarTablaActividades() {
-  let listadoActividades = "<ion-list>";
-  actividadesFiltradas.forEach((a) => {
-    listadoActividades += `
-        <ion-item class="ion-item-producto" producto-id="${a.id}">
-            <ion-thumbnail slot="start">
-                <img src="${a.getURLImagen()}" width="100"/>
-            </ion-thumbnail>
-            <ion-label>
-                <h2>${a.nombre}</h2>                
-            </ion-label>              
-        </ion-item>
-      `;
-  });
-  listadoActividades += "</ion-list>";
-
-  if (actividadesFiltradas.length === 0) {
-    listadoActividades = "No se encontraron actividades.";
-  }
-
-  document.querySelector("#divAct").innerHTML = listadoActividades;
-}
 
 function inputFiltroProductosChangeHandler() {
   actualizarProductosFiltrados();
   completarTablaActividades();
 }
 
-function actualizarProductosFiltrados() {
+function actualizarActvidadesFiltrados() {
   const filtroIngresado = document
     .querySelector("#txtActFiltro")
     .value.trim()
@@ -759,14 +632,13 @@ function actualizarProductosFiltrados() {
   } else {
     for (let i = 0; i < actividades.length; i++) {
       const actividadActual = actividades[i];
-      for (let j = 0; j < actividadActual.length; j++) {
-        const etiquetaActual = actividadActual.etiquetas[j];
-        if (etiquetaActual.toUpperCase().includes(filtroIngresado)) {
-          actividadesFiltradas.push(actividadActual);
-          break;
-        }
+
+      if (actividadActual.nombre.toUpperCase().includes(filtroIngresado)) {
+        actividadesFiltradas.push(actividadActual);
+        break;
       }
     }
+    renderizarActividades(actividadesFiltradas);
   }
 }
 
@@ -816,9 +688,9 @@ function renderizarActividades(actividadesCreadas) {
 
   actividades.forEach((a) => {
     actividadesCreadas.forEach((ac) => {
-      if (usuarioLogueadoActividad.id === ac.idUsuario) {
+      if (usuarioLogueadoActividad.id == ac.idUsuario) {
         listadoActividades += `
-          <ion-item class="ion-item-actividad" actividad-id="${ac.idActividad}">
+          <ion-item class="ion-item-actividad" actividad-id="${ac.id}">
             <div>
               <ion-thumbnail slot="start">
                 <img src="${a.getURLImagen()}" width="100" />
@@ -834,7 +706,7 @@ function renderizarActividades(actividadesCreadas) {
 
               <ion-button
                 color="medium"
-                data-actividad-id="${ac.idActividad}"
+                data-actividad-id="${ac.id}"
                 class="eliminarActividad"
               >
                 <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
@@ -886,8 +758,6 @@ function registrarActividad() {
     tiempo: tiempo,
     fecha: fecha,
   };
-
-  console.log(nuevaActividad);
 
   const urlApi = apiBaseURL + "registros.php";
   fetch(urlApi, {
