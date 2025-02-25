@@ -496,47 +496,6 @@ function cargarYListarActividades() {
     .catch((mensaje) => console.log(mensaje));
 }
 
-//lista de Ver Registro
-// function listarRegistros() {
-//   let listadoDeRegistros = "<ion-list>";
-//   actividades.forEach((a) => {
-//     if (actividades.length === 0) {
-//       listadoDeRegistros = `<p>No se encontraron actividades.</p>`;
-//     } else {
-//       listadoDeRegistros += `
-//         <ion-item class="ion-item-producto">
-//         <ion-thumbnail slot="start">
-//             <img src="${a.getURLImagen()}" width="100"/>
-//         </ion-thumbnail>
-//         <ion-label>
-//             <h2><strong>${a.nombre}</strong></h2>
-//         </ion-label>
-
-//         <ion-button class="btnVerDetalleActividad" color="warning"
-//         style="padding:15px;" detalle-id="${a.id}">
-//         <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
-//         </ion-button>
-
-//         <ion-button color="medium" >
-//         <ion-icon slot="icon-only" name="trash-sharp"></ion-icon>
-//         </ion-button>
-
-//         </ion-item>
-//       `;
-//     }
-//   });
-//   listadoDeRegistros += "</ion-list>";
-//   document.querySelector("#divAct").innerHTML = listadoDeRegistros;
-//   const botonesTraidosHTML = document.querySelectorAll(
-//     ".btnVerDetalleActividad"
-//   );
-//   if (botonesTraidosHTML?.length > 0) {
-//     botonesTraidosHTML.forEach((b) => {
-//       b.addEventListener("click", verDetalleActividad);
-//     });
-//   }
-// }
-
 //TODO: falta terminar
 function eliminarActividad(event) {
   const usuarioLogueadoEliminarActividad = JSON.parse(
