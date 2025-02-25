@@ -29,6 +29,7 @@ class Usuario {
 }
 
 class RegistrarActividad {
+  id;
   idActividad;
   idUsuario;
   tiempo;
@@ -36,6 +37,9 @@ class RegistrarActividad {
 
   static parse(data) {
     const registrarActividad = new RegistrarActividad();
+    if (data.id) {
+      registrarActividad.id = data.id;
+    }
     if (data.idActividad) {
       registrarActividad.idActividad = data.idActividad;
     }
